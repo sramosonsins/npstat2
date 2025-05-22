@@ -6,7 +6,7 @@
 
 This code implements some population genetics tests and estimators that can be applied to pooled sequences from Next Generation Sequencing experiments. The statistics are described in the paper "Population genomics from pool sequencing" by L. Ferretti, S.E. Ramos-Onsins and M. Perez-Enciso, Molecular Ecology (2013), DOI: 10.1111/mec.12522.
 
-In this second version, we have implemented analysis multiscaffold, population differentation analysis (Fst, if an additional population is included, STILL TESTING) and have increased the number of statistics shown, specially for functional regions. In addition, the assignation of functional positions will be updated soon to increase the precission of the analysis on these regions.
+In this second version, we have implemented analysis multiscaffold, population differentation analysis (Fst, if an additional population is included, STILL TESTING) and increased the number of statistics shown, specially for functional regions. In addition, the assignation of functional positions will be updated soon to increase the precission of the analysis on these regions.
 
 ## How to compile
 
