@@ -16,13 +16,15 @@ In this second version, we have implemented analysis multiscaffold, population d
 
 The main input of the program is in pileup format. 
 
-Other three types of files could be useful:
+Other four types of files could be useful:
 
 - Outgroup sequence in FASTA format. The sequence should be aligned with the reference used to align the .bam file. Multiscaffold data is allowed. Scaffolds must be called with the same name than included in the pileup input file. 
 
 - File with a list of positions of filtered SNPs for the chromosome or scaﬀold analyzed. This could be useful to analyze only the SNPs called by some SNP calling software for pools.
 
 - Annotation file in GFF3 format. This allows to perform the McDonald-Kreitman test. Scaffolds must be called with the same name than included in the pileup input file. 
+
+- A second file in pileup format to analyze population differentiation.
 
 ## How to use
 
