@@ -624,7 +624,6 @@ void extract_codon(int out_base, int ref_base, int alt_base, unsigned int frame,
 void extract_stats(struct tests * test, struct combinatorial * comb, int n0, unsigned long n_ref, unsigned long n_alt_allele, unsigned long rd, unsigned long * n_alt, int ref_base, int alt_base, int out_base, int mb)
 {
     char is_out=0;
-    float gamma;
     
     if (out_base>0)
     {
@@ -657,9 +656,7 @@ void extract_stats(struct tests * test, struct combinatorial * comb, int n0, uns
         if (is_out==1){
             test->num_hl+=(double)(n_alt_allele)/(double)(rd-1);
             test->num_hq+=(double)(n_alt_allele*n_alt_allele)/(double)(rd*(rd-1));
-            if((float)n_alt_allele<=gamma) {
-                test->num_xi+=1;
-            }
+            test->num_xi+=1;
         };
         if (is_out==2)
         {
