@@ -143,7 +143,7 @@ We provide a small example containing with some regions from different scaffolds
 
 	../npstat2 -n 16 -l 10000 -nolowfreq 2 -minqual 18 -outgroup Dyakuba-mel_final_cns.fa -annot dmel-all-r6.12_sorted.gtf -scaffolds scaffold_file.txt -fstpop2 Pool_seq2.mel_mpileup.txt.gz -n2 16 -outfile Pool_seq_npstat2_results Pool_seq1.mel_mpileup.txt.gz
 	
-A simole R script to plot the results of the output is included. Simply include the name of the npstat output file of interest and the name of the output pdf file as arguments:
+A simple R script to plot the results of the output is included. Simply include the name of the npstat output file of interest and the name of the output pdf file as arguments:
 
 	R --vanilla --args [output_npstat2.txt] [output_plots.pdf] < npstat_plot_windows2.R 
 
