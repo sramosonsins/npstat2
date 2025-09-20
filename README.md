@@ -119,9 +119,7 @@ qualities and allele count. Note slightly different assumptions in relation to n
 The HKA test can be obtained by composing data from S (columns 8), Var(S) (column 14) and divergence (column 23). The McDonald-Kreitman
 test could be obtained by composing synonymous/nonsynonimous polymorphism/divergence data in a 2 × 2 contingency table. 
 
-Note that we approximate all aminoacids to be 4-fold degenerate (i.e.
-nonsynonimous and synonimous sites actually correspond to the 1st/2nd
-base and 3rd base in the codon, respectively). this will be updated to a Nuclear Universal coding code soon.
+Synonymous and non-synonymous positions are calculated considering Nuclear Universal coding and using Nei-Gojobori (1986) method. Only codons with less than 3 mutations were considered.
 
 The file containing the differentiation output contains the next statistics:
 
