@@ -8,6 +8,9 @@ This code implements some population genetics tests and estimators that can be a
 
 In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, the assignation of functional positions will be updated soon to increase the precission of the analysis on these regions.
 
+###Code under debugging!
+This code is still not completely validated. There are still problems in the correct calculation of quasisingletons, thetaZE and ThetaFW for p2, Fst and derived differentitation values.
+
 ## How to compile
 
 	gcc -o npstat2 NPStat-v2.c -lgsl -lgslcblas -lm -lhts
