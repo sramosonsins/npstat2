@@ -8,8 +8,9 @@ This code implements some population genetics tests and estimators that can be a
 
 In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, the assignation of functional positions will be updated soon to increase the precission of the analysis on these regions.
 
-###Code under debugging!
-This code is still not completely validated. There are still problems in the correct calculation of quasisingletons, thetaZE and ThetaFW for p2, Fst and derived differentitation values.
+## Code under debugging! 
+
+This code is still not completely validated. There are still known problems in the correct calculation of Fst values (a slight overestimation).
 
 ## How to compile
 
@@ -53,12 +54,12 @@ Mandatory flags:
     -snpfile file.snp : consider SNPs only if present in file.snp
 
 An important option is `-nolowfreq m`. This specifies how many alleles of
-low frequency are discarded. The default option is m=1, which means that
-alleles appearing in only 1 read will be discarded. Data at high coverage or
-high error rate would need higher values, e.g. m=2 above read depth 50,
-m=3 above read depth 100, etc. Use m=0 only if the SNPs have already
-been called by an external SNP caller and passed to the program through
-the option -snpfile.
+low frequency are discarded. The default option is m=2, which means that
+alleles appearing in only 2 reads will be discarded. Data at low coverage 
+would need lower values (i.e., m=1 for for read depth smaller than 10.
+High error rate would need higher values, e.g. m=100 above read depth 100, etc. 
+Use m=0 only if the SNPs have already been called by an external SNP caller 
+and passed to the program through the option -snpfile.
 
 ## Output
 
@@ -133,10 +134,10 @@ The file containing the differentiation output contains the next statistics:
 	5.length: number of bases covered in the window (considering both populations)
 	6.nVariants: number of total variants in this window.
 	7.pw_diff_12: pairwise differences between population 1 and 2.
-	8.Pi_1: Tajima’s Pi estimator of heterozygosity in population 1.
-	9.Pi_2: Tajima’s Pi estimator of heterozygosity in population 1.
-	10.Pi_a: Tajima’s Pi estimator of heterozygosity between pop 1 and 2.
-	11.Fst: Differentiation statistic
+	8.Pi_1: Tajima’s Pi estimator of heterozygosity in population 1 for common positions with pop 2.
+	9.Pi_2: Tajima’s Pi estimator of heterozygosity in population 2 for common positions with pop 1.
+	10.Pi_t: Tajima’s Pi estimator of heterozygosity considering together pop 1 and 2.
+	11.Fst: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_t)
 	
 ## Example
 
