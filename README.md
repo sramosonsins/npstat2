@@ -45,7 +45,7 @@ Mandatory flags:
     -outfile : name output file (default ends with extension '.stats.txt')
     -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup
     -n2 : sample size of the second population
-    -nolowfreq m : filter on minimum allele count mac>m (default 2)
+    -nolowfreq m : filter on minimum allele count mac>m (default 2) 
     -mincov minimum_coverage : filter on minimum coverage (default 4)
     -maxcov maximum_coverage : filter on maximum coverage (default 100)
     -minqual minimum_base_quality : filter on base quality (default 10)
