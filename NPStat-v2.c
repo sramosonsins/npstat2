@@ -35,7 +35,7 @@
 #include <gsl/gsl_math.h>
 #include <htslib/bgzf.h>
 
-#define VERSION_NPSTAT "npstat2 v.20251016\n"
+#define VERSION_NPSTAT "npstat2 v.20251019\n"
 
 /* Define substitutions */
 
@@ -76,7 +76,8 @@ struct tests
 
 struct fst_calc
 {
-    unsigned long l;
+    unsigned long la;
+    unsigned long lt;
     double gen_diff;
     double c_s;
     double num_p1;
@@ -175,7 +176,7 @@ void extract_stats(struct tests * test, struct combinatorial * comb, int n0, uns
 
 void extract_fst(struct fst_calc * fst, struct combinatorial_fst * combfst, int n01, unsigned long n_ref1, unsigned long n_alt_allele1, unsigned long rd1, unsigned long * n_alt_1, int ref_base1, int alt_base1, int n02, unsigned long n_ref2, unsigned long n_alt_allele2, unsigned long rd2, unsigned long * n_alt_2, int ref_base2, int alt_base2, int out_base, int mb, int *snp);
 
-void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, struct combinatorial *comb, struct combinatorial *comb2, int n01, unsigned long n_ref1, unsigned long n_alt_allele1, unsigned long rd1, unsigned long * n_alt_1, int ref_base1, int alt_base1, int n02, unsigned long n_ref2, unsigned long n_alt_allele2, unsigned long rd2, unsigned long * n_alt_2, int ref_base2, int alt_base2, int out_base, int mb, int *snp);
+void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, struct combinatorial *comb, struct combinatorial *comb2, int n01, unsigned long n_ref1, unsigned long n_alt_allele1, unsigned long rd1, unsigned long * n_alt_1, int ref_base1, int alt_base1, int n02, unsigned long n_ref2, unsigned long n_alt_allele2, unsigned long rd2, unsigned long * n_alt_2, int ref_base2, int alt_base2, int out_base, int mb, int mbf, int *snp);
 
 //SNPS
 void extract_snps(unsigned long pos, FILE * output_snps, unsigned long * n_alt_1, unsigned long * n_alt_2, int mb);
@@ -1269,7 +1270,7 @@ void extract_fst(struct fst_calc * fst, struct combinatorial_fst * combfst, int 
     int i,j;
     *snp = 0;
     
-    fst->l+=1;
+    fst->la+=1;
     for (i=1;i<5;i++)
     {
         for (j=1;j<5;j++)
@@ -1282,16 +1283,18 @@ void extract_fst(struct fst_calc * fst, struct combinatorial_fst * combfst, int 
     };
     fst->c_s+=combfst->c_s[rd1-1][rd2-1];
 };
-void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, struct combinatorial *comb, struct combinatorial *comb2, int n01, unsigned long n_ref1, unsigned long n_alt_allele1, unsigned long rd1, unsigned long * n_alt_1, int ref_base1, int alt_base1, int n02, unsigned long n_ref2, unsigned long n_alt_allele2, unsigned long rd2, unsigned long * n_alt_2, int ref_base2, int alt_base2, int out_base, int mb, int *snp)
+void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, struct combinatorial *comb, struct combinatorial *comb2, int n01, unsigned long n_ref1, unsigned long n_alt_allele1, unsigned long rd1, unsigned long * n_alt_1, int ref_base1, int alt_base1, int n02, unsigned long n_ref2, unsigned long n_alt_allele2, unsigned long rd2, unsigned long * n_alt_2, int ref_base2, int alt_base2, int out_base, int mb,int mbf, int *snp)
 {
-    int i,j;
+    int i,j,nal;
     unsigned long int a[5],at,a2;
     double local_piT;
     
     a[1]=a[2]=a[3]=a[4]=0;
     *snp = 0;
     
-    if(rd1>0 && rd2>0 && rd1+rd2>2*mb+1) {
+    if(rd1>2*mb+1 && rd2>2*mb+1 /*&& rd1+rd2>2*mb+1*/) {
+        
+        //calculate diff for Pia
         for (i=1;i<5;i++)
         {
             for (j=1;j<5;j++)
@@ -1301,38 +1304,52 @@ void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, str
                     *snp = 1;
                 }
             };
-            a[i] = n_alt_1[i] + n_alt_2[i];
         };
-        fst->l+=1;
-        fst->c_s+=combfst->c_s[rd1-1][rd2-1];
+        //if(rd1>2*mb+1 && rd2>2*mb+1) {
+            fst->la+=1;
+            fst->c_s+=combfst->c_s[rd1-1][rd2-1];
+        //}
         
-        //calculate piT
-        if ((rd1>2*mb+1)) {
+        //calculate piW and piT using the same positions and conditions (rd1+rd2>2*mb+1)
+        
+        //number of different alleles
+        nal=0;
+        at=0;
+        for (i=1;i<5;i++) {
+            if(n_alt_1[i] + n_alt_2[i] > mb) {
+                a[i] = n_alt_1[i] + n_alt_2[i];
+                at+=a[i];
+                nal++;
+            }
+        }
+        if(nal>2) //not counted for more than two alleles
+            return;
+
+        //if ((rd1>2*mb+1)) {
             fst->den_p1+= comb->d_p[rd1-1];
             if ((n_ref1>mb) && (n_alt_allele1>mb)) {
                 fst->num_p1 += (double)(2 * n_alt_allele1 * n_ref1)/(double)(rd1*(rd1-1));
             }
-        }
-        if ((rd2>2*mb+1)) {
+        //}
+        //if ((rd2>2*mb+1)) {
             fst->den_p2+= comb2->d_p[rd2-1];
             if ((n_ref2>mb) && (n_alt_allele2>mb)) {
                 fst->num_p2 += (double)(2 * n_alt_allele2 * n_ref2)/(double)(rd2*(rd2-1));
             }
-        }
-        at = (a[1]+a[2]+a[3]+a[4]);
+        //}
         local_piT=0.;
         for (i=1;i<5;i++) {
             a2 = 0;
             for (j=1;j<5;j++) {
-                if(i!=j)
+                if(i!=j && a[j]>mb)
                     a2 += a[j];
             }
-            at=a[i]+a2;
             if(a[i]>mb && a2>mb)
                 local_piT += (double)(a[i]*a2);
         }
         fst->num_pt += local_piT/(at*(at-1));
-        fst->den_pt+= combfst->d_pt[rd1+rd2-1];
+        fst->den_pt+= combfst->d_pt[at-1];
+        fst->lt+=1;
     }
 };
 
@@ -1514,7 +1531,8 @@ void init_tests(struct tests *test1, struct tests *test2, struct tests *tests1, 
         test2->den_nu=0;
         test2->den_xi=0;
         
-        fst->l=0;
+        fst->la=0;
+        fst->lt=0;
         fst->gen_diff=0;
         fst->c_s=0;
         fst->num_p1=0;
@@ -1611,9 +1629,9 @@ void calculate_window_stats(struct tests *test1, double *cov1_val, double *theta
 }
 
 void usage(void) {
-    fprintf(stderr,"Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -scaffolds: name of file containing scaffold names\n     -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
+    fprintf(stderr,"Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -scaffolds: name of file containing scaffold names\n     -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m (default 2)\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
     
-    printf("Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -scaffolds: name of file containing scaffold names\n    -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
+    printf("Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -scaffolds: name of file containing scaffold names\n    -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m (default 2)\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
     return;
 }
 /*--------------------------------------------------------------*/
@@ -1646,7 +1664,7 @@ int main(int argc, char *argv[])
     unsigned long n_ref2, n_alt_allele2;//, n_tot_allele2;
     unsigned long n_alt_2[5];
     unsigned long max_cov, min_cov, min_qual, min_mqual;
-    int m_bar, m1t, m2t;
+    int m_bar,m_bar_fst, m1t, m2t;
     unsigned long window_size;
     int n01, n02;
     //unsigned long rd, rd1, rd2;
@@ -1774,7 +1792,7 @@ int main(int argc, char *argv[])
     min_qual=10;
     min_mqual=10;
     m_bar=2; //default
-    
+
     char from_stdin;
     char outgroup_available;
     char compute_fst=0;
@@ -2233,19 +2251,22 @@ int main(int argc, char *argv[])
      }
      */
     /**/
+    m_bar_fst=m_bar;
     if(compute_fst) {
         //Fst for piT
-        for(rd=2*m_bar+2;rd<=2*max_cov;rd++)
+        /**/
+        for(rd=2*m_bar_fst+2;rd<=2*max_cov;rd++)
         {
             int k;
-            combfst.d_pt[rd-1]+=(double)(n01+n02-1)/(double)(n01+n02);/*SI-13 den*/
+            combfst.d_pt[rd-1]+=(double)(n01+n02-1)/(double)(n01+n02);//SI-13 den
             for(k=1;k<n01+n02;k++) {
                 //p1+p2
-                for(lt=1;lt<=m_bar;lt++) {
-                    combfst.d_pt[rd-1]+= -2*gsl_sf_choose(rd-2,lt-1) * gsl_pow_int((double)k/(double)(n01+n02),lt-1) * gsl_pow_int(1-(double)k/(double)(n01+n02),rd-lt-1)/(double)(n01+n02);  /*SI-14*/
+                for(lt=1;lt<=m_bar_fst;lt++) {
+                    combfst.d_pt[rd-1]+= -2*gsl_sf_choose(rd-2,lt-1) * gsl_pow_int((double)k/(double)(n01+n02),lt-1) * gsl_pow_int(1-(double)k/(double)(n01+n02),rd-lt-1)/(double)(n01+n02);  //SI-14
                 }
             }
         }
+        /**/
         //Fst from Pia
         for(rd1=2*m_bar+2;rd1<=max_cov;rd1++) { /*all possible read depth combinations*/
             for(rd2=2*m_bar+2;rd2<=max_cov;rd2++) {
@@ -2257,7 +2278,7 @@ int main(int argc, char *argv[])
                         x2=(double)(i)/(double)(n01+n02);
                         y1=1-x1;
                         y2=1-x2;
-                        for(m1t=0;m1t<=m_bar;m1t++){ /*frequencies from 0 to m_bar are not considered*/
+                        for(m1t=0;m1t<=m_bar;m1t++){ /*frequencies from 0 to m_bar+1 (more reads than in one pop) are not considered*/
                             for(m2t=0;m2t<=m_bar;m2t++){
                                 combfst.c_s[rd1-1][rd2-1]+=
                                 gsl_ran_hypergeometric_pdf(k-i,n01,n02,k)*((double)(m1t*(rd2-m2t)+m2t*(rd1-m1t))/(double)(rd1*rd2))*
@@ -2359,8 +2380,9 @@ int main(int argc, char *argv[])
     
     if(compute_fst) {
         fprintf(output_stat2, "scaffold\twindow\tstart\tend\tlength\tlength_outgroup\tread_depth\tS\ttheta_FL*\tWatterson\tPi\tTajima_D\tunnormFL*test\tvar_S\tvar_Watterson\ttheta_FL\tthetaH\tthetaZE\tunnormFLtest\tunnorm_FayWu_H\tunnormZengEtest\tFayWu_H\tdiv\tnonsyn_S\tsyn_S\tnonsyn_div\tsyn_div\tlen_ns\tlen_out_ns\tthetaFL*_ns\tWatt_ns\tpi_ns\tthetaFL_ns\tthetaH_ns\tthetaZE_ns\tdiv_ns\tlen_syn\tlen_out_syn\tthetaFL*_syn\tWatt_syn\tpi_syn\tthetaFL_syn\tthetaH_syn\tthetaZE_syn\tdiv_syn\talpha\talpha_watt\talpha_pi\talpha_H\n");
-        
-        //fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1_\tPi_2_\tPi_t_\tFst_\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
+        /*
+        fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength_t\tlength_a\tnVariants\tpw_diff_12\tPi_1_\tPi_2_\tPi_t_\tFst_\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
+        */
         fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_t\tFst\n");
     }
     
@@ -2677,7 +2699,7 @@ int main(int argc, char *argv[])
                 snp_pos += (unsigned long) variant;
             }*/
             if (((pos_base1==posw)&&(rd1<=max_cov)&&!strcmp(cchrom, cchrom2)/*&&(rd1>=max(min_cov,m_bar+1))*/) &&  ((pos_base2==posw)&&(rd2<=max_cov)&&!strcmp(cchrom,c2chrom2)/*&&(rd2>=max(min_cov,m_bar+1))*/)) {
-                extract_fstT(&fst, &combfst, &comb1, &comb2, n01, n_ref1, n_alt_allele1, rd1, n_alt_1, ref_base1, alt_base1, n02, n_ref2, n_alt_allele2, rd2, n_alt_2, ref_base2, alt_base2, out_base, m_bar, &variant);
+                extract_fstT(&fst, &combfst, &comb1, &comb2, n01, n_ref1, n_alt_allele1, rd1, n_alt_1, ref_base1, alt_base1, n02, n_ref2, n_alt_allele2, rd2, n_alt_2, ref_base2, alt_base2, out_base, m_bar,m_bar_fst, &variant);
                 snp_pos += (unsigned long) variant;
             }
        }
@@ -2820,27 +2842,35 @@ int main(int argc, char *argv[])
                 pi2t_val=pi2_val;
                 //if((test2.den_hl>0)&&(test2.den_hq>0)) { h2_val=test2.num_hq/test2.den_hq-test2.num_hl/test2.den_hl; } else { h2_val=0; };
                 
+                //Calculate Fst: Two approaches
                 if(fst.den_p1>0) {
                     pi1t_val_=fst.num_p1/fst.den_p1;
                 } else { pi1t_val_=-1;};
                 if(fst.den_p2>0) {
                     pi2t_val_=fst.num_p2/fst.den_p2;
                 } else { pi2t_val_=-1;};
-                if(fst.den_pt>0) {
-                    pit_val_=fst.num_pt/fst.den_pt;
+                if(fst.den_pt>0){//fst.lt-fst.c_s/2.0>0) {
+                    pit_val_=fst.num_pt/fst.den_pt; //(fst.lt-fst.c_s/2.0);//
                 } else { pit_val_=-1;};
-                pis_val_ = (pi1t_val_+pi2t_val_)/2;
-                if(pit_val_>0) {
+                if(pi1t_val_>=0 && pi2t_val_>=0)
+                    pis_val_ = (pi1t_val_+pi2t_val_)/2;
+                else {pis_val_=-1;}
+                if(pit_val_>0 && pis_val_>=0) {
                     fst_val2= 1 - pis_val_/pit_val_;
                 } else {
                     fst_val2= -10000;
                 }
  
-                //pis_val = (pi1t_val_+pi2t_val_)/2.0;
-                pis_val = (pi1t_val+pi2t_val)/2.0; /*12*/
-                pia_val = fst.gen_diff/(double)(fst.l - pis_val * fst.c_s); /*SI-27*/
-                pit_val = 1.0/2.0 * pis_val + 1.0/2.0 * pia_val; /*13*/
-                if(pia_val>0 && pit_val>0) {
+                if(pi1t_val>=0 && pi2t_val>=0) {
+                    pis_val = (pi1t_val+pi2t_val)/2.0; /*12*/
+                } else {pis_val=-1;}
+                if(pis_val>=0) {
+                    pia_val = fst.gen_diff/(double)(fst.la - /* 2.0*pis_val* */fst.c_s/2.0); /*SI-27*/
+                } else {pia_val=-1;}
+                if(pis_val>=0 && pia_val>=0) {
+                    pit_val = 1.0/2.0 * (pis_val + pia_val); /*13*/
+                } else {pit_val=-1;}
+                if(pia_val>=0 && pit_val>0) {
                     fst_val = 1 - pis_val/pit_val; /*11*/
                 } else {
                     fst_val = -10000;
@@ -2945,25 +2975,30 @@ int main(int argc, char *argv[])
                 fprintf(output_stat2,"\n");
                 
                 /*RESULTS FST FILE */
-                fprintf(output_fst, "%s\t%lu\t%lu\t%lu\t%lu\t%lu",cchrom2,n_window, start, end,fst.l,snp_pos);
-                if(fst.l>0) {
-                    fprintf(output_fst,"\t%f",fst.gen_diff);
+                fprintf(output_fst, "%s\t%lu\t%lu\t%lu\t%lu",cchrom2,n_window, start, end,fst.lt);
+                /**/fprintf(output_fst, "\t%lu",fst.la);/**/
+                if(fst.lt>0) {
+                    fprintf(output_fst,"\t%lu\t%f",snp_pos,fst.gen_diff);
                     if(pi1t_val_>=0.) fprintf(output_fst,"\t%f",pi1t_val_); else fprintf(output_fst,"\tNA");
                     if(pi2t_val_>=0.) fprintf(output_fst,"\t%f",pi2t_val_); else fprintf(output_fst,"\tNA");
                     if(pit_val_>=0.)  fprintf(output_fst,"\t%f",pit_val_);  else fprintf(output_fst,"\tNA");
                     if(fst_val2 !=-10000) fprintf(output_fst, "\t%f",fst_val2); else fprintf(output_fst,"\tNA");
-                    /*
+                }
+                else {
+                    fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
+                }
+                /*
+                if(fst.la>0) {
                     if(pi1t_val>=0.) fprintf(output_fst,"\t%f",pi1t_val); else fprintf(output_fst,"\tNA");
                     if(pi2t_val>=0.) fprintf(output_fst,"\t%f",pi2t_val); else fprintf(output_fst,"\tNA");
                     if(pia_val>=0.)  fprintf(output_fst,"\t%f",pia_val);  else fprintf(output_fst,"\tNA");
                     if(pit_val>=0.)  fprintf(output_fst,"\t%f",pit_val);  else fprintf(output_fst,"\tNA");
                     if(fst_val !=-10000) fprintf(output_fst, "\t%f",fst_val); else fprintf(output_fst,"\tNA");
-                    */
                 }
                 else {
                     fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
-                    //fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
                 }
+                */
                 fprintf(output_fst,"\n");
             }
             

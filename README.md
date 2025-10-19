@@ -4,13 +4,13 @@
 
 #### Sebastian E. Ramos-Onsins, Sara Guirao-Rico, Ahmed Hafez and Luca Ferretti
 
-This code implements some population genetics tests and estimators that can be applied to pooled sequences from Next Generation Sequencing experiments. The statistics are described in the paper "Population genomics from pool sequencing" by L. Ferretti, S.E. Ramos-Onsins and M. Perez-Enciso, Molecular Ecology (2013), DOI: 10.1111/mec.12522.
+This code implements some population genetics tests and estimators that can be applied to pooled sequences from Next Generation Sequencing experiments. The statistics are described in the paper "Population genomics from pool sequencing" by L. Ferretti, S.E. Ramos-Onsins and M. Perez-Enciso, Molecular Ecology (2013), DOI: 10.1111/mec.12522. npstat2 is designed to work with pools containing from few to few hundred individuals and with no more than few hundred reads of mean read depth.
 
-In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, the assignation of functional positions will be updated soon to increase the precission of the analysis on these regions.
+In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to avoid biases.
 
 ## Code under debugging! 
 
-This code is still not completely validated. There are still known problems in the correct calculation of Fst values (a slight overestimation).
+This code is still not completely validated. We are validating the software using simulations under different conditions.
 
 ## How to compile
 
@@ -32,7 +32,7 @@ Other three types of files could be useful:
 
 Command:
 
-	npstat [flags] file.pileup.gz
+	npstat2 [flags] file.pileup.gz
 	    
 Mandatory flags:
 
@@ -45,7 +45,7 @@ Mandatory flags:
     -outfile : name output file (default ends with extension '.stats.txt')
     -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup
     -n2 : sample size of the second population
-    -nolowfreq m : filter on minimum allele count mac>m
+    -nolowfreq m : filter on minimum allele count mac>m (default 2)
     -mincov minimum_coverage : filter on minimum coverage (default 4)
     -maxcov maximum_coverage : filter on maximum coverage (default 100)
     -minqual minimum_base_quality : filter on base quality (default 10)
