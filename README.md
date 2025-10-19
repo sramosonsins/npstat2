@@ -6,7 +6,7 @@
 
 This code implements some population genetics tests and estimators that can be applied to pooled sequences from Next Generation Sequencing experiments. The statistics are described in the paper "Population genomics from pool sequencing" by L. Ferretti, S.E. Ramos-Onsins and M. Perez-Enciso, Molecular Ecology (2013), DOI: 10.1111/mec.12522. npstat2 is designed to work with pools containing from few to few hundred individuals and with no more than few hundred reads of mean read depth.
 
-In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to avoid biases.
+In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to increase accuracy.
 
 ## Code under debugging! 
 
@@ -56,8 +56,8 @@ Mandatory flags:
 An important option is `-nolowfreq m`. This specifies how many alleles of
 low frequency are discarded. The default option is m=2, which means that
 alleles appearing in only 2 reads will be discarded. Data at low coverage 
-would need lower values (i.e., m=1 for for read depth smaller than 10.
-High error rate would need higher values, e.g. m=100 above read depth 100, etc. 
+would need lower values (i.e., m=1 for read depth smaller than 20-30.
+High error rate would need higher values, e.g. m=3 above read depth 100, etc. 
 Use m=0 only if the SNPs have already been called by an external SNP caller 
 and passed to the program through the option -snpfile.
 
