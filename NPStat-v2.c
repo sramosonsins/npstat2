@@ -35,7 +35,7 @@
 #include <gsl/gsl_math.h>
 #include <htslib/bgzf.h>
 
-#define VERSION_NPSTAT "npstat2 v.20251019\n"
+#define VERSION_NPSTAT "npstat2 v.20251020\n"
 
 /* Define substitutions */
 
@@ -2976,7 +2976,7 @@ int main(int argc, char *argv[])
                 
                 /*RESULTS FST FILE */
                 fprintf(output_fst, "%s\t%lu\t%lu\t%lu\t%lu",cchrom2,n_window, start, end,fst.lt);
-                /**/fprintf(output_fst, "\t%lu",fst.la);/**/
+                /*fprintf(output_fst, "\t%lu",fst.la);*/
                 if(fst.lt>0) {
                     fprintf(output_fst,"\t%lu\t%f",snp_pos,fst.gen_diff);
                     if(pi1t_val_>=0.) fprintf(output_fst,"\t%f",pi1t_val_); else fprintf(output_fst,"\tNA");
@@ -2985,7 +2985,7 @@ int main(int argc, char *argv[])
                     if(fst_val2 !=-10000) fprintf(output_fst, "\t%f",fst_val2); else fprintf(output_fst,"\tNA");
                 }
                 else {
-                    fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
+                    fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA");
                 }
                 /*
                 if(fst.la>0) {
