@@ -6,7 +6,7 @@
 
 This code implements some population genetics tests and estimators that can be applied to pooled sequences from Next Generation Sequencing experiments. The statistics are described in the paper "Population genomics from pool sequencing" by L. Ferretti, S.E. Ramos-Onsins and M. Perez-Enciso, Molecular Ecology (2013), DOI: 10.1111/mec.12522. npstat2 is designed to work with pools containing from few to few hundred individuals and with no more than few hundred reads of mean read depth.
 
-In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to increase accuracy. Note that the parameters *nolowfreq*, *min_cov* and *max_cov* are common for both pools and for their joint analysis to estimate Fst.
+In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to increase accuracy. Note that the parameters *nolowfreq*, *mincov*, *maxcov* and *minqual* are common for both pools.
 
 ## Code under debugging! 
 
