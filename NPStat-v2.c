@@ -35,7 +35,7 @@
 #include <gsl/gsl_math.h>
 #include <htslib/bgzf.h>
 
-#define VERSION_NPSTAT "npstat2 v.20251020\n"
+#define VERSION_NPSTAT "npstat2 v.20251021\n"
 
 /* Define substitutions */
 
@@ -1792,6 +1792,7 @@ int main(int argc, char *argv[])
     min_qual=10;
     min_mqual=10;
     m_bar=2; //default
+    int fst_path = 0;
 
     char from_stdin;
     char outgroup_available;
@@ -2190,26 +2191,22 @@ int main(int argc, char *argv[])
             }
         };
         /*
-         for(k=1;k<n02;k++) {
-         comb2.d_t[rd-1]+=(1-gsl_pow_int((double)k/(double)n02,rd)-gsl_pow_int(1-(double)k/(double)n02,rd))/(double)k;
-         for(lt=1;lt<=m_bar;lt++)
-         {
-         comb2.d_t[rd-1]+=+gsl_sf_choose(rd,lt)*gsl_pow_int((double)k/(double)n02,lt-1)*gsl_pow_int(1-(double)k/(double)n02,rd-lt-1)/(double)n02;
-         comb2.d_p[rd-1]+=+2*gsl_sf_choose(rd-2,lt-1)*gsl_pow_int((double)k/(double)n02,lt-1)*gsl_pow_int(1-(double)k/(double)n02,rd-lt-1);
-         };
-         comb2.d_hl[rd-1]+=((double)rd/(double)n02)*((1-2/((double)rd-1))*(double)k/(double)n02-1)*gsl_pow_int((double)k/(double)n02,rd-2);
-         comb2.d_hq[rd-1]+=(((double)rd-1)/(double)n02)*((1+(double)(rd+1)/gsl_pow_int((double)(rd-1),2))*(double)k/(double)n02-1)*gsl_pow_int((double)k/(double)n02,rd-2);
-         */
-        /*
-         comb2.d_t[rd-1]+=(1-gsl_pow_int((double)k/(double)n02,rd-1)*((double)k/(double)n02+(double)rd)-gsl_pow_int(1-(double)k/(double)n02,rd))/(double)k;
-         comb2.d_p[rd-1]+=(-2*gsl_pow_int((double)k/(double)n02,rd-2))/(double)n02;
-         comb2.d_hl[rd-1]+=((double)rd/(double)n02)*((1-2/((double)rd-1))*(double)k/(double)n02-1)
-         *gsl_pow_int((double)k/(double)n02,rd-2);
-         comb2.d_hq[rd-1]+=(((double)rd-1)/(double)n02)*((1+(double)(rd+1)/gsl_pow_int((double)(rd-1),2))*(double)k/(double)n02-1)*gsl_pow_int((double)k/(double)n02,rd-2);
-         */
-        /*
-         };
-         */
+        for(k=1;k<n02;k++) {
+            comb2.d_t[rd-1]+=(1-gsl_pow_int((double)k/(double)n02,rd)-gsl_pow_int(1-(double)k/(double)n02,rd))/(double)k;
+            for(lt=1;lt<=m_bar;lt++)
+            {
+                comb2.d_t[rd-1]+=+gsl_sf_choose(rd,lt)*gsl_pow_int((double)k/(double)n02,lt-1)*gsl_pow_int(1-(double)k/(double)n02,rd-lt-1)/(double)n02;
+                comb2.d_p[rd-1]+=+2*gsl_sf_choose(rd-2,lt-1)*gsl_pow_int((double)k/(double)n02,lt-1)*gsl_pow_int(1-(double)k/(double)n02,rd-lt-1);
+            };
+            comb2.d_hl[rd-1]+=((double)rd/(double)n02)*((1-2/((double)rd-1))*(double)k/(double)n02-1)*gsl_pow_int((double)k/(double)n02,rd-2);
+            comb2.d_hq[rd-1]+=(((double)rd-1)/(double)n02)*((1+(double)(rd+1)/gsl_pow_int((double)(rd-1),2))*(double)k/(double)n02-1)*gsl_pow_int((double)k/(double)n02,rd-2);
+            comb2.d_t[rd-1]+=(1-gsl_pow_int((double)k/(double)n02,rd-1)*((double)k/(double)n02+(double)rd)-gsl_pow_int(1-(double)k/(double)n02,rd))/(double)k;
+            comb2.d_p[rd-1]+=(-2*gsl_pow_int((double)k/(double)n02,rd-2))/(double)n02;
+            comb2.d_hl[rd-1]+=((double)rd/(double)n02)*((1-2/((double)rd-1))*(double)k/(double)n02-1)
+            *gsl_pow_int((double)k/(double)n02,rd-2);
+            comb2.d_hq[rd-1]+=(((double)rd-1)/(double)n02)*((1+(double)(rd+1)/gsl_pow_int((double)(rd-1),2))*(double)k/(double)n02-1)*gsl_pow_int((double)k/(double)n02,rd-2);
+        };
+        */
         //p2
         if(compute_fst) {
             for(k=1;k<n02;k++)
@@ -2232,73 +2229,82 @@ int main(int argc, char *argv[])
          }
     };
     
-    //NOFST BEGIN
-    /*
-     for(rd1=2;rd1<=max_cov;rd1++) {
-     for(rd2=2;rd2<=max_cov;rd2++) {
-     int k,l;
-     for(k=1;k<=n01+n02-1;k++) {
-     for(l=0;l<=k;l++) {
-     for(m1t=0;m1t<=m_bar;m1t++){
-     for(m2t=0;m2t<=m_bar;m2t++){
-     combfst.c_s[rd1-1][rd2-1]+= (gsl_ran_hypergeometric_pdf(l,n01,n02,k)*((double)(m1t*(rd2-m2t)+m2t*(rd1-m1t))/(double)(rd1*rd2))*gsl_sf_choose(rd1,m1t)*gsl_sf_choose(rd2,m2t) * (gsl_pow_int((double)l/(double)(n01+n02),m1t)*gsl_pow_int(1-((double)l/(double)(n01+n02)),rd1-m1t)+gsl_pow_int((double)l/(double)(n01+n02),rd1-m1t)*gsl_pow_int(1-((double)l/(double)(n01+n02)),m1t)) * (gsl_pow_int((double)(k-l)/(double)(n01+n02),m2t)*gsl_pow_int(1-((double)(k-l)/(double)(n01+n02)),rd2-m2t)+gsl_pow_int((double)(k-l)/(double)(n01+n02),rd2-m2t)*gsl_pow_int(1-((double)(k-l)/(double)(n01+n02)),m2t)))/(double)k;;
-     }
-     }
-     }
-     }
-     //printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
-     }
-     }
-     */
-    /**/
+    //Define Fst (...)
+    if( (float)abs(n01-n02) / ((float)min(n01,n02)) > 1.0 )
+        fst_path = 0; //if the difference between nsam is too large
+    else
+        fst_path = 1; //assume similar nsam and similar nreads in both pops!
+    //fst_path = 0;
+    
     m_bar_fst=m_bar;
     if(compute_fst) {
-        //Fst for piT
-        /**/
-        for(rd=2*m_bar_fst+2;rd<=2*max_cov;rd++)
-        {
-            int k;
-            combfst.d_pt[rd-1]+=(double)(n01+n02-1)/(double)(n01+n02);//SI-13 den
-            for(k=1;k<n01+n02;k++) {
-                //p1+p2
-                for(lt=1;lt<=m_bar_fst;lt++) {
-                    combfst.d_pt[rd-1]+= -2*gsl_sf_choose(rd-2,lt-1) * gsl_pow_int((double)k/(double)(n01+n02),lt-1) * gsl_pow_int(1-(double)k/(double)(n01+n02),rd-lt-1)/(double)(n01+n02);  //SI-14
-                }
-            }
-        }
-        /*
-        //Fst from Pia
-        for(rd1=2*m_bar+2;rd1<=max_cov;rd1++) { //all possible read depth combinations
-            for(rd2=2*m_bar+2;rd2<=max_cov;rd2++) {
-                int i,k;
-                double x1,y1,x2,y2;
-                for(k=1;k<=n01+n02-1;k++) { //maximum sample sizes for the sum of the two pops
-                    for(i=0;i<=k;i++) { //x1 and y1 are the freqs k-i and i-freqs given total, x2 are 1 - these freqs
-                        x1=(double)(k-i)/(double)(n01+n02);
-                        x2=(double)(i)/(double)(n01+n02);
-                        y1=1-x1;
-                        y2=1-x2;
-                        for(m1t=0;m1t<=m_bar;m1t++){ //frequencies from 0 to m_bar+1 (more reads than in one pop) are not considered
-                            for(m2t=0;m2t<=m_bar;m2t++){
-                                combfst.c_s[rd1-1][rd2-1]+=
-                                gsl_ran_hypergeometric_pdf(k-i,n01,n02,k)*((double)(m1t*(rd2-m2t)+m2t*(rd1-m1t))/(double)(rd1*rd2))*
-                                gsl_sf_choose(rd1,m1t)*gsl_sf_choose(rd2,m2t)*
-                                (gsl_pow_int(x2,m1t)*gsl_pow_int(y2,rd1-m1t)+gsl_pow_int(x2,rd1-m1t)*gsl_pow_int(y2,m1t))*
-                                (gsl_pow_int(x1,m2t)*gsl_pow_int(y1,rd2-m2t)+gsl_pow_int(x1,rd2-m2t)*gsl_pow_int(y1,m2t))
-                                /(double)k; //SI-28
-                                //if(combfst.c_s[rd1-1][rd2-1]<0.) {
-                                //    printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
-                                //}
+        if( fst_path == 0 ) { //if the difference between nsam is too large
+            //Fst from Pia
+            /**/
+            for(rd1=2;rd1<=max_cov;rd1++) {
+                for(rd2=2;rd2<=max_cov;rd2++) {
+                    int k,l;
+                    for(k=1;k<=n01+n02-1;k++) {
+                        for(l=0;l<=k;l++) {
+                            for(m1t=0;m1t<=m_bar;m1t++){
+                                for(m2t=0;m2t<=m_bar;m2t++){
+                                    combfst.c_s[rd1-1][rd2-1]+= (gsl_ran_hypergeometric_pdf(l,n01,n02,k)*((double)(m1t*(rd2-m2t)+m2t*(rd1-m1t))/(double)(rd1*rd2))*gsl_sf_choose(rd1,m1t)*gsl_sf_choose(rd2,m2t) * (gsl_pow_int((double)l/(double)(n01+n02),m1t)*gsl_pow_int(1-((double)l/(double)(n01+n02)),rd1-m1t)+gsl_pow_int((double)l/(double)(n01+n02),rd1-m1t)*gsl_pow_int(1-((double)l/(double)(n01+n02)),m1t)) * (gsl_pow_int((double)(k-l)/(double)(n01+n02),m2t)*gsl_pow_int(1-((double)(k-l)/(double)(n01+n02)),rd2-m2t)+gsl_pow_int((double)(k-l)/(double)(n01+n02),rd2-m2t)*gsl_pow_int(1-((double)(k-l)/(double)(n01+n02)),m2t)))/(double)k;;
+                                }
                             }
                         }
                     }
+                    //printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
                 }
-                //printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
+            }
+            /**/
+            /*
+            //Fst from Pia
+            for(rd1=2;rd1<=max_cov;rd1++) { //all possible read depth combinations
+                for(rd2=2;rd2<=max_cov;rd2++) {
+                    int i,k;
+                    double x1,y1,x2,y2;
+                    for(k=1;k<=n01+n02-1;k++) { //maximum sample sizes for the sum of the two pops
+                        for(i=0;i<=k;i++) { //x1 and y1 are the freqs k-i and i-freqs given total, x2 are 1 - these freqs
+                            x1=(double)(k-i)/(double)(n01+n02);
+                            x2=(double)(i)/(double)(n01+n02);
+                            y1=1-x1;
+                            y2=1-x2;
+                            for(m1t=0;m1t<=m_bar;m1t++){ //frequencies from 0 to m_bar (more reads than in one pop) are not considered
+                                for(m2t=0;m2t<=m_bar;m2t++){
+                                    combfst.c_s[rd1-1][rd2-1]+=
+                                    gsl_ran_hypergeometric_pdf(k-i,n01,n02,k)*((double)(m1t*(rd2-m2t)+m2t*(rd1-m1t))/(double)(rd1*rd2))*
+                                    gsl_sf_choose(rd1,m1t)*gsl_sf_choose(rd2,m2t)*
+                                    (gsl_pow_int(x2,m1t)*gsl_pow_int(y2,rd1-m1t)+gsl_pow_int(x2,rd1-m1t)*gsl_pow_int(y2,m1t))*
+                                    (gsl_pow_int(x1,m2t)*gsl_pow_int(y1,rd2-m2t)+gsl_pow_int(x1,rd2-m2t)*gsl_pow_int(y1,m2t))
+                                    /(double)k; //SI-28
+                                    //if(combfst.c_s[rd1-1][rd2-1]<0.) {
+                                    //    printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
+                                    //}
+                                }
+                            }
+                        }
+                    }
+                    //printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
+                }
+            }
+            */
+        }
+        else {
+            //Fst for piT. assume similar nsam and similar nreads in both pops!
+            /**/
+            for(rd=2*m_bar_fst+2;rd<=2*max_cov;rd++)
+            {
+                int k;
+                combfst.d_pt[rd-1]+=(double)(n01+n02-1)/(double)(n01+n02);//SI-13 den
+                for(k=1;k<n01+n02;k++) {
+                    //p1+p2
+                    for(lt=1;lt<=m_bar_fst;lt++) {
+                        combfst.d_pt[rd-1]+= -2*gsl_sf_choose(rd-2,lt-1) * gsl_pow_int((double)k/(double)(n01+n02),lt-1) * gsl_pow_int(1-(double)k/(double)(n01+n02),rd-lt-1)/(double)(n01+n02);  //SI-14
+                    }
+                }
             }
         }
-        */
-    }
-    /**/
+    }/**/
     //END
     
     for(rd=1;rd<=max_cov*(n01-1); rd++){
@@ -2384,7 +2390,10 @@ int main(int argc, char *argv[])
         /*
         fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength_t\tlength_a\tnVariants\tpw_diff_12\tPi_1_\tPi_2_\tPi_t_\tFst_\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
         */
-        fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_t\tFst\n");
+        if(fst_path == 0)
+            fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
+       else
+            fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_t\tFst\n");
     }
     
     printf("Computing statistics for the window...\n");
@@ -2843,7 +2852,7 @@ int main(int argc, char *argv[])
                 pi2t_val=pi2_val;
                 //if((test2.den_hl>0)&&(test2.den_hq>0)) { h2_val=test2.num_hq/test2.den_hq-test2.num_hl/test2.den_hl; } else { h2_val=0; };
                 
-                //Calculate Fst: Two approaches
+                //Calculate Fst: (only when nsam are equal and nr similar)
                 if(fst.den_p1>0) {
                     pi1t_val_=fst.num_p1/fst.den_p1;
                 } else { pi1t_val_=-1;};
@@ -2862,6 +2871,7 @@ int main(int argc, char *argv[])
                     fst_val2= -10000;
                 }
  
+                //Calculate Fst: using pa
                 if(pi1t_val>=0 && pi2t_val>=0) {
                     pis_val = (pi1t_val+pi2t_val)/2.0; /*12*/
                 } else {pis_val=-1;}
@@ -2976,30 +2986,34 @@ int main(int argc, char *argv[])
                 fprintf(output_stat2,"\n");
                 
                 /*RESULTS FST FILE */
-                fprintf(output_fst, "%s\t%lu\t%lu\t%lu\t%lu",cchrom2,n_window, start, end,fst.lt);
-                /*fprintf(output_fst, "\t%lu",fst.la);*/
-                if(fst.lt>0) {
-                    fprintf(output_fst,"\t%lu\t%f",snp_pos,fst.gen_diff);
-                    if(pi1t_val_>=0.) fprintf(output_fst,"\t%f",pi1t_val_); else fprintf(output_fst,"\tNA");
-                    if(pi2t_val_>=0.) fprintf(output_fst,"\t%f",pi2t_val_); else fprintf(output_fst,"\tNA");
-                    if(pit_val_>=0.)  fprintf(output_fst,"\t%f",pit_val_);  else fprintf(output_fst,"\tNA");
-                    if(fst_val2 !=-10000) fprintf(output_fst, "\t%f",fst_val2); else fprintf(output_fst,"\tNA");
+                fprintf(output_fst, "%s\t%lu\t%lu\t%lu",cchrom2,n_window, start, end);
+                if(fst_path==0) {
+                    fprintf(output_fst, "\t%lu",fst.la);
+                    if(fst.la>0) {
+                        fprintf(output_fst,"\t%lu\t%f",snp_pos,fst.gen_diff);
+                        if(pi1t_val>=0.) fprintf(output_fst,"\t%f",pi1t_val); else fprintf(output_fst,"\tNA");
+                        if(pi2t_val>=0.) fprintf(output_fst,"\t%f",pi2t_val); else fprintf(output_fst,"\tNA");
+                        if(pia_val>=0.)  fprintf(output_fst,"\t%f",pia_val);  else fprintf(output_fst,"\tNA");
+                        if(pit_val>=0.)  fprintf(output_fst,"\t%f",pit_val);  else fprintf(output_fst,"\tNA");
+                        if(fst_val !=-10000) fprintf(output_fst, "\t%f",fst_val); else fprintf(output_fst,"\tNA");
+                    }
+                    else {
+                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
+                    }
                 }
                 else {
-                    fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA");
+                    fprintf(output_fst, "\t%lu",fst.lt);
+                    if(fst.lt>0) {
+                        fprintf(output_fst,"\t%lu\t%f",snp_pos,fst.gen_diff);
+                        if(pi1t_val_>=0.) fprintf(output_fst,"\t%f",pi1t_val_); else fprintf(output_fst,"\tNA");
+                        if(pi2t_val_>=0.) fprintf(output_fst,"\t%f",pi2t_val_); else fprintf(output_fst,"\tNA");
+                        if(pit_val_>=0.)  fprintf(output_fst,"\t%f",pit_val_);  else fprintf(output_fst,"\tNA");
+                        if(fst_val2 !=-10000) fprintf(output_fst, "\t%f",fst_val2); else fprintf(output_fst,"\tNA");
+                    }
+                    else {
+                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA");
+                    }
                 }
-                /*
-                if(fst.la>0) {
-                    if(pi1t_val>=0.) fprintf(output_fst,"\t%f",pi1t_val); else fprintf(output_fst,"\tNA");
-                    if(pi2t_val>=0.) fprintf(output_fst,"\t%f",pi2t_val); else fprintf(output_fst,"\tNA");
-                    if(pia_val>=0.)  fprintf(output_fst,"\t%f",pia_val);  else fprintf(output_fst,"\tNA");
-                    if(pit_val>=0.)  fprintf(output_fst,"\t%f",pit_val);  else fprintf(output_fst,"\tNA");
-                    if(fst_val !=-10000) fprintf(output_fst, "\t%f",fst_val); else fprintf(output_fst,"\tNA");
-                }
-                else {
-                    fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
-                }
-                */
                 fprintf(output_fst,"\n");
             }
             
