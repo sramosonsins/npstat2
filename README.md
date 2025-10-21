@@ -56,7 +56,7 @@ Mandatory flags:
 An important option is `-nolowfreq m`. This specifies how many alleles of
 low frequency are discarded. The default option is m=2, which means that
 alleles appearing in only 2 reads will be discarded. Data at low coverage 
-would need lower values (i.e., m=1 for read depth smaller than 20-30.
+would need lower values (i.e., m=1 for read depth smaller than 10.
 High error rate would need higher values, e.g. m=3 above read depth 100, etc. 
 Use m=0 only if the SNPs have already been called by an external SNP caller 
 and passed to the program through the option -snpfile.
