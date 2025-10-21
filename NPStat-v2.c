@@ -2390,12 +2390,8 @@ int main(int argc, char *argv[])
         /*
         fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength_t\tlength_a\tnVariants\tpw_diff_12\tPi_1_\tPi_2_\tPi_t_\tFst_\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
         */
-        if(fst_path == 0)
-            fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
-       else
-            fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_t\tFst\n");
+        fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_a\tPi_t\tFst\n");
     }
-    
     printf("Computing statistics for the window...\n");
     
     
@@ -2725,7 +2721,7 @@ int main(int argc, char *argv[])
         {
             //calculate window values
             end = posw;
-            double pi1t_val,pi2t_val,pit_val,pi1t_val_,pi2t_val_,pit_val_,theta1_val, pi1_val, d1_val, thetaH1_val, h1_val, theta2_val, pi2_val, d2_val, thetaH2_val, h2_val, pia_val, pis_val, pis_val_, fst_val,fst_val2, cov1_val, cov2_val, div_val, var_h, var_d, var_s, var0_s, var0_d, var0_h, thetaE1_val,thetaE2_val/**/, thetanu1_val, thetaxi1_val, e1_val, f1_val, fo1_val, thetanu2_val, thetaxi2_val, e2_val, f2_val, fo2_val/*, vk_s[n01-1], vk_d[n01-1], vk_h[n01-1]*//*,pis_val_ponderated*/;
+            double pi1t_val,pi2t_val,pit_val,pi1t_val_,pi2t_val_,pit_val_,theta1_val, pi1_val, d1_val, thetaH1_val, h1_val, theta2_val, pi2_val, d2_val, thetaH2_val, h2_val, pia_val, pis_val,pia_val_, pis_val_, fst_val,fst_val2, cov1_val, cov2_val, div_val, var_h, var_d, var_s, var0_s, var0_d, var0_h, thetaE1_val,thetaE2_val/**/, thetanu1_val, thetaxi1_val, e1_val, f1_val, fo1_val, thetanu2_val, thetaxi2_val, e2_val, f2_val, fo2_val/*, vk_s[n01-1], vk_d[n01-1], vk_h[n01-1]*//*,pis_val_ponderated*/;
             DEB(printf("printing output\n")); //debug
             
             /*POP1*/
@@ -2866,6 +2862,7 @@ int main(int argc, char *argv[])
                     pis_val_ = (pi1t_val_+pi2t_val_)/2;
                 else {pis_val_=-1;}
                 if(pit_val_>0 && pis_val_>=0) {
+                    pia_val_=2*pit_val_-pis_val_;
                     fst_val2= 1 - pis_val_/pit_val_;
                 } else {
                     fst_val2= -10000;
@@ -2998,7 +2995,7 @@ int main(int argc, char *argv[])
                         if(fst_val !=-10000) fprintf(output_fst, "\t%f",fst_val); else fprintf(output_fst,"\tNA");
                     }
                     else {
-                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA");
+                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
                     }
                 }
                 else {
@@ -3007,11 +3004,12 @@ int main(int argc, char *argv[])
                         fprintf(output_fst,"\t%lu\t%f",snp_pos,fst.gen_diff);
                         if(pi1t_val_>=0.) fprintf(output_fst,"\t%f",pi1t_val_); else fprintf(output_fst,"\tNA");
                         if(pi2t_val_>=0.) fprintf(output_fst,"\t%f",pi2t_val_); else fprintf(output_fst,"\tNA");
+                        if(pia_val_>=0.)  fprintf(output_fst,"\t%f",pia_val_);  else fprintf(output_fst,"\tNA");
                         if(pit_val_>=0.)  fprintf(output_fst,"\t%f",pit_val_);  else fprintf(output_fst,"\tNA");
                         if(fst_val2 !=-10000) fprintf(output_fst, "\t%f",fst_val2); else fprintf(output_fst,"\tNA");
                     }
                     else {
-                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA");
+                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
                     }
                 }
                 fprintf(output_fst,"\n");
