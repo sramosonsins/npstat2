@@ -2266,26 +2266,26 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        /**/
+        /*
         //Fst from Pia
-        for(rd1=2*m_bar+2;rd1<=max_cov;rd1++) { /*all possible read depth combinations*/
+        for(rd1=2*m_bar+2;rd1<=max_cov;rd1++) { //all possible read depth combinations
             for(rd2=2*m_bar+2;rd2<=max_cov;rd2++) {
                 int i,k;
                 double x1,y1,x2,y2;
-                for(k=1;k<=n01+n02-1;k++) { /*maximum sample sizes for the sum of the two pops*/
-                    for(i=0;i<=k;i++) { /*x1 and y1 are the freqs k-i and i-freqs given total, x2 are 1 - these freqs*/
+                for(k=1;k<=n01+n02-1;k++) { //maximum sample sizes for the sum of the two pops
+                    for(i=0;i<=k;i++) { //x1 and y1 are the freqs k-i and i-freqs given total, x2 are 1 - these freqs
                         x1=(double)(k-i)/(double)(n01+n02);
                         x2=(double)(i)/(double)(n01+n02);
                         y1=1-x1;
                         y2=1-x2;
-                        for(m1t=0;m1t<=m_bar;m1t++){ /*frequencies from 0 to m_bar+1 (more reads than in one pop) are not considered*/
+                        for(m1t=0;m1t<=m_bar;m1t++){ //frequencies from 0 to m_bar+1 (more reads than in one pop) are not considered
                             for(m2t=0;m2t<=m_bar;m2t++){
                                 combfst.c_s[rd1-1][rd2-1]+=
                                 gsl_ran_hypergeometric_pdf(k-i,n01,n02,k)*((double)(m1t*(rd2-m2t)+m2t*(rd1-m1t))/(double)(rd1*rd2))*
                                 gsl_sf_choose(rd1,m1t)*gsl_sf_choose(rd2,m2t)*
                                 (gsl_pow_int(x2,m1t)*gsl_pow_int(y2,rd1-m1t)+gsl_pow_int(x2,rd1-m1t)*gsl_pow_int(y2,m1t))*
                                 (gsl_pow_int(x1,m2t)*gsl_pow_int(y1,rd2-m2t)+gsl_pow_int(x1,rd2-m2t)*gsl_pow_int(y1,m2t))
-                                /(double)k; /*SI-28*/
+                                /(double)k; //SI-28
                                 //if(combfst.c_s[rd1-1][rd2-1]<0.) {
                                 //    printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
                                 //}
@@ -2296,6 +2296,7 @@ int main(int argc, char *argv[])
                 //printf("combfst.c_s[%d-1][%d-1]=%f\n",rd1,rd2,combfst.c_s[rd1-1][rd2-1]);
             }
         }
+        */
     }
     /**/
     //END
@@ -2849,8 +2850,8 @@ int main(int argc, char *argv[])
                 if(fst.den_p2>0) {
                     pi2t_val_=fst.num_p2/fst.den_p2;
                 } else { pi2t_val_=-1;};
-                if(fst.den_pt>0){//fst.lt-fst.c_s/2.0>0) {
-                    pit_val_=fst.num_pt/fst.den_pt; //(fst.lt-fst.c_s/2.0);//
+                if(fst.den_pt>0){
+                    pit_val_=fst.num_pt/fst.den_pt;
                 } else { pit_val_=-1;};
                 if(pi1t_val_>=0 && pi2t_val_>=0)
                     pis_val_ = (pi1t_val_+pi2t_val_)/2;
