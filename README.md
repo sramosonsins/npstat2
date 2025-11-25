@@ -12,7 +12,7 @@ Remember to filter your mpileup(s) to exclude sites with possible mapping errors
 
 ## Code under debugging! 
 
-This code is still not completely validated. We are validating the software using simulations under different conditions. Fst works acceptably for pools with similar sample sizes and read depth.
+This code is still not completely validated. We are validating the software using simulations under different conditions. Fst works acceptably in comparison with other tools. See simulation results included.
 
 ## How to compile
 
@@ -147,7 +147,7 @@ By default, Fst is calculated from the estimation of Pi_a to later estimate Pi_t
 	
 ## Example
 
-We provide a small example containing with some regions from different scaffolds of Drosophila melanogaster and D. yakuba as the outgroup. the two populations used are coming from the same population. Unzip before running.
+We provide a small example containing some regions from different scaffolds of Drosophila melanogaster and D. yakuba as the outgroup. the two populations used are coming from the same population. Unzip before running.
 
 	../npstat2 -n 16 -l 10000 -nolowfreq 1 -minqual 18 -outgroup Dyakuba-mel_final_cns.fa -annot dmel-all-r6.12_sorted.gtf -scaffolds scaffold_file.txt -fstpop2 Pool_seq2.mel_mpileup.txt.gz -n2 16 -outfile Pool_seq_npstat2_results Pool_seq1.mel_mpileup.txt.gz
 	
