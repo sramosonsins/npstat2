@@ -8,6 +8,8 @@ This code implements some population genetics tests and estimators that can be a
 
 In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to increase accuracy. Note that the parameters *nolowfreq*, *mincov*, *maxcov* and *minqual* are common for both pools.
 
+Remember to filter your mpileup(s) to exclude sites with possible mapping errors or copy-number variants. Mapping quality filtering is not included in the code.
+
 ## Code under debugging! 
 
 This code is still not completely validated. We are validating the software using simulations under different conditions. Fst works acceptably for pools with similar sample sizes and read depth.
@@ -45,7 +47,7 @@ Mandatory flags:
     -outfile : name output file (default ends with extension '.stats.txt')
     -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup
     -n2 : sample size of the second population
-    -nolowfreq m : filter on minimum allele count mac>m (default 2) 
+    -nolowfreq m : filter on minimum allele count mac>m (default 1) 
     -mincov minimum_coverage : filter on minimum coverage (default 4)
     -maxcov maximum_coverage : filter on maximum coverage (default 100)
     -minqual minimum_base_quality : filter on base quality (default 10)
@@ -56,8 +58,8 @@ Mandatory flags:
 An important option is `-nolowfreq m`. This specifies how many alleles of
 low frequency are discarded. The default option is m=2, which means that
 alleles appearing in only 2 reads will be discarded. Data at low coverage 
-would need lower values (i.e., m=1 for read depth smaller than 10.
-High error rate would need higher values, e.g. m=3 above read depth 100, etc. 
+would need lower values (i.e., m=1 for read depth smaller than 100.
+High error rate would need higher values, e.g. m=3 above read depth 1000, etc. 
 Use m=0 only if the SNPs have already been called by an external SNP caller 
 and passed to the program through the option -snpfile.
 
@@ -134,16 +136,20 @@ The file containing the differentiation output contains the next statistics:
 	5.length: number of bases covered in the window (considering both populations)
 	6.nVariants: number of total variants in this window.
 	7.pw_diff_12: pairwise differences between population 1 and 2.
-	8.Pi_1: Tajima’s Pi estimator of heterozygosity in population 1 for common positions with pop 2.
-	9.Pi_2: Tajima’s Pi estimator of heterozygosity in population 2 for common positions with pop 1.
-	10.Pi_t: Tajima’s Pi estimator of heterozygosity considering together pop 1 and 2.
-	11.Fst: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_t)
+	8.Pi_1: Tajima’s Pi estimator of heterozygosity/nt in population 1 for common positions with pop 2.
+	9.Pi_2: Tajima’s Pi estimator of heterozygosity/nt in population 2 for common positions with pop 1.
+	10.Pi_a: pairwise differences between population 1 and 2 divided by the total effective positions.
+	11.Pi_t: Tajima’s Pi estimator of heterozygosity/nt considering together pop 1 and 2.
+	12.FstT: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_t)
+	13.FstA: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_a)
+
+By default, Fst is calculated from the estimation of Pi_a to later estimate Pi_total, using the equations developed in Ferretti et al (2013).
 	
 ## Example
 
 We provide a small example containing with some regions from different scaffolds of Drosophila melanogaster and D. yakuba as the outgroup. the two populations used are coming from the same population. Unzip before running.
 
-	../npstat2 -n 16 -l 10000 -nolowfreq 2 -minqual 18 -outgroup Dyakuba-mel_final_cns.fa -annot dmel-all-r6.12_sorted.gtf -scaffolds scaffold_file.txt -fstpop2 Pool_seq2.mel_mpileup.txt.gz -n2 16 -outfile Pool_seq_npstat2_results Pool_seq1.mel_mpileup.txt.gz
+	../npstat2 -n 16 -l 10000 -nolowfreq 1 -minqual 18 -outgroup Dyakuba-mel_final_cns.fa -annot dmel-all-r6.12_sorted.gtf -scaffolds scaffold_file.txt -fstpop2 Pool_seq2.mel_mpileup.txt.gz -n2 16 -outfile Pool_seq_npstat2_results Pool_seq1.mel_mpileup.txt.gz
 	
 A simple R script to plot the results of the output is included. Simply include the name of the npstat output file of interest and the name of the output pdf file as arguments:
 
