@@ -12,7 +12,7 @@ Remember to filter your mpileup(s) to exclude sites with possible mapping errors
 
 ## Code under debugging! 
 
-This code is still not completely validated. We are validating the software using simulations under different conditions. Fst works acceptably in comparison with other tools. See simulation results included.
+This code is still not completely validated. We are validating the software using simulations under different conditions. Fst works acceptably in comparison with other tools. See simulation results included in the repository.
 
 ## How to compile
 
@@ -67,7 +67,7 @@ and passed to the program through the option -snpfile.
 
 We have included additional statistics in relation to the first version. One file is output (by defaut has the same name than the initial input pileup with extension '.stats.txt', unless the outpfile option is used). If a second population is included (option -n2 and -fstpop2), then two additional files are output: a file with the statististics for the second population (same format than first but with the additional extension '\_p2.txt'), and a third file with the differentiation statistics (same name with the extension '\_fst.txt').
 
-The file with the population output contains the next statistics:
+The file containing the population output includes the next statistics:
 
 	1.scaffold: name of the scaffold.
 	2.window: window number.
@@ -92,42 +92,42 @@ The file with the population output contains the next statistics:
 	21.unnormZengEtest: unnormalized Zeng's E Test.
 	22.FayWu_H: normalized Fay and Wu’s H.
 	23.div: divergence per base (from outgroup). 
-	24.nonsyn_S: nonsynonimous polymorphisms.
-	25.syn_S: synonimous polymorphisms
-	26.nonsyn_div: nonsynonimous divergence
-	27.syn_div: synonimous polymorphisms
-	28.len_ns: number of nonsynonymous bases covered in the window.
-	29.len_out_ns: number of nonsynonymous bases covered and with known outgroup allele.
-	30.thetaFL*_ns: quasi-singletons variability estimate from folded SFS (nonsynonymous) 
-	31.Watt_ns: Watterson estimator of theta of nonsynonymous positions.
-	32.pi_ns: Tajima’s Pi estimator of heterozygosity of nonsynonymous positions.
-	33.thetaFL_ns: quasi-singletons variability estimate from unfolded SFS (nonsynonymous)
-	34.thetaH_ns: Fay and Wu's variability estimator of nonsynonymous positions.
-	35.thetaZE_ns: ZengE variability estimator (nonsynonymous).
-	36.div_ns: divergence per nonsynonymous base (from outgroup).
-	37.len_syn: number of synonymous bases covered in the window.
-	38.len_out_syn: number of synonymous bases covered and with known outgroup allele. 
-	39.thetaFL*_syn: quasi-singletons variability estimate from folded SFS (synonymous) 
-	40.Watt_syn: Watterson estimator of theta of synonymous positions.
-	41.pi_syn: Tajima’s Pi estimator of heterozygosity of synonymous positions.
-	42.thetaFL_syn: quasi-singletons variability estimate from unfolded SFS (synonymous)
-	43.thetaH_syn: Fay and Wu's variability estimator of synonymous positions
-	44.thetaZE_syn: ZengE variability estimator (synonymous).
-	45.div_syn: divergence per synonymous base (from outgroup).
+	24.nonsyn_S: nonsynonym polymorphisms.
+	25.syn_S: synonym polymorphisms
+	26.nonsyn_div: nonsynonym divergence
+	27.syn_div: synonym polymorphisms
+	28.len_ns: number of nonsynonym bases covered in the window.
+	29.len_out_ns: number of nonsynonym bases covered and with known outgroup allele.
+	30.thetaFL*_ns: quasi-singletons variability estimate from folded SFS (nonsynonym) 
+	31.Watt_ns: Watterson estimator of theta of nonsynonym positions.
+	32.pi_ns: Tajima’s Pi estimator of heterozygosity of nonsynonym positions.
+	33.thetaFL_ns: quasi-singletons variability estimate from unfolded SFS (nonsynonym)
+	34.thetaH_ns: Fay and Wu's variability estimator of nonsynonym positions.
+	35.thetaZE_ns: ZengE variability estimator (nonsynonym).
+	36.div_ns: divergence per nonsynonym base (from outgroup).
+	37.len_syn: number of synonym bases covered in the window.
+	38.len_out_syn: number of synonym bases covered and with known outgroup allele. 
+	39.thetaFL*_syn: quasi-singletons variability estimate from folded SFS (synonym) 
+	40.Watt_syn: Watterson estimator of theta of synonym positions.
+	41.pi_syn: Tajima’s Pi estimator of heterozygosity of synonym positions.
+	42.thetaFL_syn: quasi-singletons variability estimate from unfolded SFS (synonym)
+	43.thetaH_syn: Fay and Wu's variability estimator of synonym positions
+	44.thetaZE_syn: ZengE variability estimator (synonym).
+	45.div_syn: divergence per synonym base (from outgroup).
 	46.alpha: fraction of substitutions fixed by positive selection.
 	47.alpha_watt: fraction of substitutions fixed by positive selection considering Watterson variability.
 	48.alpha_pi: fraction of substitutions fixed by positive selection considering Tajima's Pi variability.
 	49.alpha_H: fraction of substitutions fixed by positive selection considering Fay and Wu's H variability.
 
 All these statistics are computed after filtering for minimum read depth,
-qualities and allele count. Note slightly different assumptions in relation to npstat1 version: (i) the consideration of a variant below the -nolowfreq is rejected and not account to consider three mutliple mutations with the outgroup, and (ii) the synonymous and nonsynonymous segregating sites are counted independently to have outgroup or not at that position. The reason is that in this version the alpha estimates are calculated using the variability and divergence levels and not the explicitely the number of mutations.
+qualities and allele count. Note slightly different assumptions in relation to npstat1 version: (i) the consideration of a variant below the -nolowfreq is rejected and not account to consider three mutliple mutations with the outgroup, and (ii) the synonym and nonsynonym segregating sites are counted independently to have outgroup or not at that position. The reason is that in this version the alpha estimates are calculated using the variability and divergence levels and not the explicitely the number of mutations.
 
 The HKA test can be obtained by composing data from S (columns 8), Var(S) (column 14) and divergence (column 23). The McDonald-Kreitman
-test could be obtained by composing synonymous/nonsynonimous polymorphism/divergence data in a 2 × 2 contingency table. 
+test could be obtained by composing synonym/nonsynonym polymorphism/divergence data in a 2 × 2 contingency table. 
 
 Synonymous and non-synonymous positions are calculated considering Nuclear Universal coding and using Nei-Gojobori (1986) method. Only codons with less than 3 mutations were considered.
 
-The file containing the differentiation output contains the next statistics:
+The file containing the differentiation output includes the next statistics:
 
 	1.scaffold: name of the scaffold.
 	2.window: window number.	
