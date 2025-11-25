@@ -18,6 +18,13 @@ This code is still not completely validated. We are validating the software usin
 
 	gcc -o npstat2 NPStat-v2.c -lgsl -lgslcblas -lm -lhts
 	
+for MacOS, you may need to include the paths to libraries (previously installed using *brew install*). 
+
+Example:
+	
+	gcc -o npstat NPStat-v2.c -lgsl -lgslcblas -lm -lhts -I/opt/homebrew/Cellar/gsl/2.8/include -I/opt/homebrew/Cellar/htslib/1.22.1/include -L/opt/homebrew/Cellar/gsl/2.8/lib -L/opt/homebrew/Cellar/htslib/1.22.1/lib
+
+	
 ## Input format
 
 The main input of the program is in pileup.gz format. It is also mandatory to include a file with the names of the scaffolds, in the same order than in the pipeline.
@@ -35,7 +42,7 @@ Other three types of files could be useful:
 Command:
 
 	npstat2 [flags] file.pileup.gz
-	    
+		    
 Mandatory flags:
 
     -n : haploid sample size
