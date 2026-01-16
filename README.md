@@ -35,7 +35,7 @@ Other three types of files could be useful:
 
 - File with a list of positions of filtered SNPs for the chromosome or scaﬀold analyzed. This could be useful to analyze only the SNPs called by some SNP calling software for pools.
 
-- Annotation file in GFF3 format. This allows to perform the McDonald-Kreitman test. Scaffolds must be called with the same name than included in the pileup input file. 
+- Annotation file in GFF3 format. This allows to perform the McDonald-Kreitman test. Scaffolds must be called with the same name than included in the pileup input file. WARNING: The GFF3 file can not work with different alternative splicing forms per gene (that is, include just one of the possible alternative splicing cases) and overlapping gene annotations must be erased from the file.
 
 ## How to use
 
