@@ -6,7 +6,7 @@
 
 This code implements some population genetics tests and estimators that can be applied to pooled sequences from Next Generation Sequencing experiments. The statistics are described in the paper "Population genomics from pool sequencing" by L. Ferretti, S.E. Ramos-Onsins and M. Perez-Enciso, Molecular Ecology (2013), DOI: 10.1111/mec.12522. npstat2 is designed to work with pools containing from few to few hundred individuals and with no more than few hundred reads of mean read depth.
 
-In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to increase accuracy. Note that the parameters *nolowfreq*, *mincov*, *maxcov* and *minqual* are common for both pools.
+In this second version, we have implemented analysis multiscaffold, quasi-singletons, population differentation analysis (Fst, when an additional population is included) and we have increased the number of statistics shown, specially for functional regions. In addition, functional positions are now estimated using Nei & Gojobori (1986) method. This version allow to read a BED file for analyzing specific windows (*e.g.*, windows collecting a multigene family gene regions or whatever you are interested). We have modified the default value of *nolowfreq* parameter to 2 (eliminate variants with 2 or less reads) to increase accuracy. Note that the parameters *nolowfreq*, *mincov*, *maxcov* and *minqual* are common for both pools.
 
 Remember to filter your mpileup(s) to exclude sites with possible mapping errors or copy-number variants. Mapping quality filtering is not included in the code.
 
@@ -46,8 +46,11 @@ Command:
 Mandatory flags:
 
     -n : haploid sample size
-    -l : window length
     -scaffolds : name of file including scaffolds   
+    
+    And one of these two options:
+    -l : window length
+    -bedfile: filename of the bedfile (rows should contain scaffold start end)
  
  Additional Optional flags:
    

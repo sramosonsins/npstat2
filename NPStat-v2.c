@@ -35,7 +35,7 @@
 #include <gsl/gsl_math.h>
 #include <htslib/bgzf.h>
 
-#define VERSION_NPSTAT "npstat2 v.20251124\n"
+#define VERSION_NPSTAT "npstat2 v.20260115\n"
 
 /* Define substitutions */
 
@@ -186,6 +186,8 @@ void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, str
 void extract_snps(unsigned long pos, FILE * output_snps, unsigned long * n_alt_1, unsigned long * n_alt_2, int mb);
 //GTF
 unsigned long extract_gff(FILE *gffinput, char *gchrom, unsigned long *cds_start, unsigned int *phase_cds, char *strand);
+//BEDFILE
+unsigned long extract_bedfile(FILE *bedfile, char *bchrom, unsigned long *b_start);
 
 //init tests
 void init_tests(struct tests *test1, struct tests *test2, struct tests *tests1, struct tests *testn1, struct tests *tests2, struct tests *testn2, struct fst_calc *fst, unsigned long *vec_rd, unsigned long *vec2_rd, double *psyn, double *pnon, double *dsyn, double *dnon, double *psyn2, double *pnon2, double *dsyn2, double *dnon2, unsigned long *div, unsigned long *div2, unsigned long max_cov, int compute_fst);
@@ -1444,6 +1446,26 @@ unsigned long extract_gff(FILE *gffinput, char *gchrom, unsigned long *cds_start
     return(cds_end);
 };
 
+unsigned long extract_bedfile(FILE *bedfile, char *bchrom, unsigned long *b_start) {
+    
+    unsigned long b_end=9e9;
+    char *line_bed;
+    size_t n_line_bed=100;
+    
+    n_line_bed=1;
+    line_bed=malloc(n_line_bed*sizeof(char));
+    if(getline(&line_bed,&n_line_bed,bedfile)!=-1){
+        while ((line_bed[0]=='#')||(line_bed[0]=='\0')) {
+            if(getline(&line_bed,&n_line_bed,bedfile)==-1)
+                return(9e9);
+        };
+        sscanf(line_bed,"%s\t%lu\t%lu",bchrom,b_start,&b_end);
+    } else {b_end=0;};
+    free(line_bed);
+    
+    return(b_end);
+};
+
 //better do this function for a single pop and execute two commands in main
 void init_tests(struct tests *test1, struct tests *test2, struct tests *tests1, struct tests *testn1, struct tests *tests2, struct tests *testn2, struct fst_calc *fst, unsigned long *vec_rd, unsigned long *vec2_rd, double *psyn, double *pnon, double *dsyn, double *dnon, double *psyn2, double *pnon2, double *dsyn2, double *dnon2, unsigned long *div, unsigned long *div2, unsigned long max_cov, int compute_fst) {
     
@@ -1795,6 +1817,7 @@ int main(int argc, char *argv[])
     
     FILE * gff=0;
     char if_gff;
+    char if_bed;
     unsigned long cds_start, cds_end;
     unsigned int phase_cds, frame;
     char strand, *gff_file_name;
@@ -1812,6 +1835,10 @@ int main(int argc, char *argv[])
     char *c2chrom_next;
     unsigned long posw;
     
+    char *bchrom,*bchrom2;
+    unsigned long b_start;
+    unsigned long b_end;
+
     char *scaffold;
     scaffold=(char *)malloc(256*sizeof(char));
     unsigned long *scaffold_out;
@@ -1885,6 +1912,7 @@ int main(int argc, char *argv[])
     ext_snps=0;
     map_qual_pileup=0;
     if_gff=0;
+    if_bed=0;
     
     /* BEG <----ADDED 29112022*/
     char *scaffold_filename;
@@ -1903,6 +1931,8 @@ int main(int argc, char *argv[])
     ochrom=(char *) calloc(100,sizeof(char));
     cchrom_next=(char *) calloc(100,sizeof(char));
     c2chrom_next=(char *) calloc(100,sizeof(char));
+    bchrom=(char *) calloc(100,sizeof(char));
+    bchrom2=(char *) calloc(100,sizeof(char));
     /* END <----ADDED 29112022*/
     
     for(arg_i=1;arg_i<argc-1;arg_i++)
@@ -1910,7 +1940,7 @@ int main(int argc, char *argv[])
         if (strcmp(argv[arg_i], "-n") == 0) {arg_i++; sscanf(argv[arg_i], "%u", &n01); }
         else if (strcmp(argv[arg_i], "-h") == 0) {arg_i++; usage(); exit(0);}
         else if (strcmp(argv[arg_i], "-l") == 0) {arg_i++; sscanf(argv[arg_i], "%lu", &window_size); }
-        else if (strcmp(argv[arg_i], "-bedfile") == 0) {arg_i++; sscanf(argv[arg_i], "%s",bed_filename); }
+        else if (strcmp(argv[arg_i], "-bedfile") == 0) {if_bed=1; arg_i++; sscanf(argv[arg_i], "%s",bed_filename); }
         else if (strcmp(argv[arg_i], "-cov") == 0) {arg_i++; sscanf(argv[arg_i], "%lf", &input_coverage1); }
         else if (strcmp(argv[arg_i], "-n2") == 0) {arg_i++; sscanf(argv[arg_i], "%u", &n02); }
         else if (strcmp(argv[arg_i], "-mincov") == 0) {arg_i++; sscanf(argv[arg_i], "%lu", &min_cov); }
@@ -1957,6 +1987,12 @@ int main(int argc, char *argv[])
             if (strcmp(argv[arg_i], "-") == 0) {printf(" stdout ");} else {printf(" %s ",argv[arg_i]);}
         };
         printf("\n");
+
+        if(window_size && bed_filename[0]) {//both defined is incompatible
+            fprintf(stderr,"\nERROR: -l and -bedfile are incompatible flags\n");
+            return(-1);
+        }
+
     };
     //fprintf(stderr,"Missing values in command line!\n Command:\n    NPStat [options] file.pileup\n or to read from standard input:\n    NPStat [options] -\n Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -mapqual : pileup includes mapping quality\n    -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -minmapqual minimum_mapping_quality : filter on mapping quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m\n    -outgroup file.fa : outgroup file in FASTA\n    -fstpop2 file2.pileup : computes Fst with a second population \n    contained in file2.pileup\n    -n2 : sample size of the second population\n");
     //-snpfile file.snp : consider SNPs only if present in file.snp\n
@@ -2087,7 +2123,12 @@ int main(int argc, char *argv[])
         usage();
         return(-1);
     };
-    if(bed_filename[0]!=0) {
+    
+    //open bedfile and include variables (scaffold_bed, window_bed_init, window_bed_end)
+    char *line_bed;
+    size_t n_line_bed=32;
+    line_bed=malloc(n_line_bed*sizeof(char));
+    if(if_bed==1) {
         bed_file=fopen(bed_filename,"r");
         if (bed_file == NULL){
             fprintf(stderr,"Error: the bedfile cannot be opened!\n");
@@ -2095,8 +2136,8 @@ int main(int argc, char *argv[])
             return(-1);
         };
     }
-    /**/
     
+    /**/
     //SNPS
     /*
      strcpy(temp_file_name1,"snps_");
@@ -2482,11 +2523,14 @@ int main(int argc, char *argv[])
     cds_end=0;
     start = 1;
     snp_pos=0;
+    b_start=0;
+    if(if_bed==0) b_end=9e9;
+    else b_end=0;
     
     /*Read name of scaffolds*/
     char *line_sc;
-    size_t n_line_sc=1;
-    line_sc=malloc(sizeof(char));
+    size_t n_line_sc=32;
+    line_sc=(char *)malloc(n_line_sc*sizeof(char));
     
     getline(&line_sc,&n_line_sc,scaffold_file); //first scaffold
     sscanf(line_sc,"%s",scaffold);
@@ -2500,11 +2544,13 @@ int main(int argc, char *argv[])
         bgzf_getdeline(&reader1,&cline,&nline,9);
         sscanf(cline,"%s\t",cchrom_next);
         strcpy(cchrom,  scaffold); //define first scaffold
-        strcpy(schrom,  scaffold);
-        strcpy(schrom2, scaffold);
-        strcpy(gchrom,  scaffold);
+        strcpy(schrom,  scaffold); //snps
+        strcpy(schrom2, scaffold); //snps 2nd pop
+        strcpy(gchrom,  scaffold); //gtf
         strcpy(gchrom2, scaffold);
-        
+        strcpy(bchrom,  scaffold); //bed
+        strcpy(bchrom2, scaffold);
+
         c2chrom_next[0]=EOF;
         if(compute_fst) {
             ct2=bgzf_reader_getc(&reader2);
@@ -2547,9 +2593,24 @@ int main(int argc, char *argv[])
             break;
         }
         
+        /*DEFINE BED WINDOW FROM BEDFILE IF AVAILABLE4*/
+        if(if_bed==1){
+            /* READ multiscaffold*/
+            /* GTF/GFF3 MUST BE SORTED. DESIRABLE NOT TO INCLUDE ALTERNATIVE SPLICING CDS.
+             ONLY FIRST CDS (AND LONGEST END) PER GENE ARE READ*/
+            if(strcmp(bchrom2,cchrom)) { /*a new chromosome in cchrom*/
+                while (strcmp(bchrom,cchrom) && b_end!=9e9) {
+                    b_end = extract_bedfile(bed_file, bchrom, &b_start);
+                }
+                strcpy(bchrom2,bchrom);
+            }
+            while (b_end<posw && !strcmp(bchrom,cchrom)) {
+                b_end = extract_bedfile(bed_file, bchrom, &b_start);
+            }
+        }
         // INITIALIZE EVERYTHING HERE!!!!
         //include here the windows from the bed_file (that is, one option is window size and the other option is bed_file)
-        if (posw==(n_window-1)*window_size+1)
+        if ((if_bed==0 && posw==(n_window-1)*window_size+1) || (if_bed==1 && posw==b_start))
         {
             DEB(printf("inizialize\n")); //debug
             printf(" %s.%lu\t", cchrom, n_window);
@@ -2563,7 +2624,7 @@ int main(int argc, char *argv[])
         /*IDENTIFY SELECTED SNPS IF AVAILABLE*/
         if(ext_snps==1){/*SCAFFOLDS MUST BE IN THE SAME ORDER THAN PILEUP!*/
             if(strcmp(schrom2,cchrom)) { /*a new chromosome in cchrom*/
-                while (strcmp(schrom,cchrom) && pos_snp<2e9/*EOF*/) pos_snp=extract_pos_snpinput(list_snps,schrom);
+                while (strcmp(schrom,cchrom) && pos_snp<9e9/*EOF*/) pos_snp=extract_pos_snpinput(list_snps,schrom);
                 strcpy(schrom2,schrom);
             }
             while (pos_snp<posw && !strcmp(schrom,cchrom)) pos_snp=extract_pos_snpinput(list_snps,schrom);
@@ -2575,12 +2636,14 @@ int main(int argc, char *argv[])
             /* GTF/GFF3 MUST BE SORTED. DESIRABLE NOT TO INCLUDE ALTERNATIVE SPLICING CDS.
              ONLY FIRST CDS (AND LONGEST END) PER GENE ARE READ*/
             if(strcmp(gchrom2,cchrom)) { /*a new chromosome in cchrom*/
-                while (strcmp(gchrom,cchrom) && cds_end!=2e9/*EOF*/) {
-                    cds_end = extract_gff(gff, gchrom, &cds_start, &phase_cds, &strand);}
+                while (strcmp(gchrom,cchrom) && cds_end!=9e9/*EOF*/) {
+                    cds_end = extract_gff(gff, gchrom, &cds_start, &phase_cds, &strand);
+                }
                 strcpy(gchrom2,gchrom);
             }
             while (cds_end<posw && !strcmp(gchrom,cchrom)) {
-                cds_end = extract_gff(gff, gchrom, &cds_start, &phase_cds, &strand);}
+                cds_end = extract_gff(gff, gchrom, &cds_start, &phase_cds, &strand);
+            }
         }
         /*DEFINE OUTGROUP IF AVAILABLE*/
         if(outgroup_available==1) {/*define scaffold*/
@@ -2625,7 +2688,7 @@ int main(int argc, char *argv[])
         }
         
         if (if_gff==1){
-            if (cds_start<=posw){
+            if (cds_start<=posw && b_start<=posw && b_end>=posw){
                 /*if gff and cds start, it is also necessary to know the outgroup positions*/
                 if(strand=='+'){
                     frame=((posw-cds_start+3-phase_cds)%3)+1;
@@ -2721,7 +2784,7 @@ int main(int argc, char *argv[])
         
         /*EXTRACT STATISTICS FOR TOTAL POSITIONS*/
         /*POP1*/
-        if ((pos_base1==posw) && (rd1>=min_cov) && (rd1<=max_cov) && !strcmp(cchrom,cchrom2))
+        if ((pos_base1==posw) && (rd1>=min_cov) && (rd1<=max_cov) && !strcmp(cchrom,cchrom2) && b_start<=posw && b_end>=posw)
         {
             if((ext_snps==1)&&((pos_snp!=posw)||strcmp(schrom,cchrom))) {
                 if (n_ref1>=n_alt_allele1){
@@ -2752,7 +2815,7 @@ int main(int argc, char *argv[])
         /*EXTRACT STATISTICS*/
         /*POP2*/
         if(compute_fst) {
-            if ((pos_base2==posw)&&(rd2>=min_cov)&&(rd2<=max_cov)&&!strcmp(cchrom,c2chrom2))
+            if ((pos_base2==posw)&&(rd2>=min_cov)&&(rd2<=max_cov)&&!strcmp(cchrom,c2chrom2) && b_start<=posw && b_end>=posw)
             {
                 if((ext_snps==1)&&((pos_snp!=posw)||strcmp(schrom,cchrom))) {
                     if (n_ref2>=n_alt_allele2){
@@ -2781,7 +2844,7 @@ int main(int argc, char *argv[])
                 extract_fst(&fst, &combfst, n01, n_ref1, n_alt_allele1, rd1, n_alt_1, ref_base1, alt_base1, n02, n_ref2, n_alt_allele2, rd2, n_alt_2, ref_base2, alt_base2, out_base, m_bar, &variant);
                 snp_pos += (unsigned long) variant;
             }*/
-            if (((pos_base1==posw)&&(rd1<=max_cov)&&!strcmp(cchrom, cchrom2)/*&&(rd1>=max(min_cov,m_bar+1))*/) &&  ((pos_base2==posw)&&(rd2<=max_cov)&&!strcmp(cchrom,c2chrom2)/*&&(rd2>=max(min_cov,m_bar+1))*/)) {
+            if (((pos_base1==posw)&&(rd1<=max_cov)&&!strcmp(cchrom, cchrom2)/*&&(rd1>=max(min_cov,m_bar+1))*/) &&  ((pos_base2==posw)&&(rd2<=max_cov)&&!strcmp(cchrom,c2chrom2)/*&&(rd2>=max(min_cov,m_bar+1))*/) && b_start<=posw && b_end>=posw) {
                 extract_fstT(&fst, &combfst, &comb1, &comb2, n01, n_ref1, n_alt_allele1, rd1, n_alt_1, ref_base1, alt_base1, n02, n_ref2, n_alt_allele2, rd2, n_alt_2, ref_base2, alt_base2, out_base, m_bar,m_bar_fst, &variant, fst_path);
                 snp_pos += (unsigned long) variant;
             }
@@ -2794,7 +2857,7 @@ int main(int argc, char *argv[])
             bgzf_reader_ungetc(&reader2,ct2);
         }
         //include here the windows from the bed_file (that is, one option is window size and the other option is bed_file)
-        if (((posw==(n_window*window_size)) || (ct1==EOF && ct2==EOF) || (strcmp(cchrom_next,cchrom) && strcmp(c2chrom_next,cchrom))))
+        if (((posw==(n_window*window_size)) || (ct1==EOF && ct2==EOF) || (strcmp(cchrom_next,cchrom) && strcmp(c2chrom_next,cchrom))) || posw==b_end)
         {
             //calculate window values
             end = posw;
@@ -2816,7 +2879,11 @@ int main(int argc, char *argv[])
             pi1t_val=pi1_val;
             
             //PRINT RESULTS
-            fprintf(output_stat1, "%s\t%lu\t%lu\t%lu\t%.0f\t%.0f",cchrom2, n_window, start, end, test1.l, test1.l_out);
+            if(if_bed==0) {
+                fprintf(output_stat1, "%s\t%lu\t%lu\t%lu\t%.0f\t%.0f",cchrom2, n_window, start, end, test1.l, test1.l_out);
+            } else {
+                fprintf(output_stat1, "%s\t%lu\t%lu\t%lu\t%.0f\t%.0f",cchrom2, n_window, b_start, b_end, test1.l, test1.l_out);
+            }
             /*printf("%lu\t%lu", test1.l, test1.l_out);*/
             
             if (test1.l>0.) {
@@ -2958,7 +3025,6 @@ int main(int argc, char *argv[])
                     fst_val = -10000;
                 }
                 
-                
                 var0_s=var0_s*theta2_val;
                 var0_d=var0_d*theta2_val;
                 var0_h=var0_h*theta2_val;
@@ -2967,7 +3033,11 @@ int main(int argc, char *argv[])
                 var_h=var_h*theta2_val*theta2_val;
                 
                 //PRINT RESULTS
-                fprintf(output_stat2, "%s\t%lu\t%lu\t%lu\t%.0f\t%.0f",cchrom2, n_window, start, end, test2.l, test2.l_out);
+                if(if_bed==0) {
+                    fprintf(output_stat2, "%s\t%lu\t%lu\t%lu\t%.0f\t%.0f",cchrom2, n_window, start, end, test2.l, test2.l_out);
+                } else {
+                    fprintf(output_stat2, "%s\t%lu\t%lu\t%lu\t%.0f\t%.0f",cchrom2, n_window, b_start, b_end, test2.l, test2.l_out);
+                }
                 if (test2.l>0.) {
                     if(thetanu2_val!=-1)
                         fprintf(output_stat2, "\t%f\t%.0f\t%f\t%f\t%f\t%f\t%f\t%.3e\t%.3e", cov2_val, test2.s, thetanu2_val,theta2_val, pi2_val, d2_val/sqrt(var0_d+var_d), f2_val,var0_s+var_s, (var0_s+var_s)/(test2.den_t*test2.den_t));
@@ -3058,7 +3128,11 @@ int main(int argc, char *argv[])
                 fprintf(output_stat2,"\n");
                 
                 /*RESULTS FST FILE */
-                fprintf(output_fst, "%s\t%lu\t%lu\t%lu",cchrom2,n_window, start, end);
+                if(if_bed==0) {
+                    fprintf(output_fst, "%s\t%lu\t%lu\t%lu",cchrom2,n_window, start, end);
+                } else {
+                    fprintf(output_fst, "%s\t%lu\t%lu\t%lu",cchrom2,n_window, b_start, b_end);
+                }
                 if(fst_path==1) {//Luca approach? // Grenedalf approach?
                     fprintf(output_fst, "\t%lu",fst.la);
                     if(fst.la>0) {
@@ -3119,6 +3193,7 @@ int main(int argc, char *argv[])
     free(cchrom_next); free(c2chrom_next);
     free(schrom);free(schrom2);
     free(gchrom);free(gchrom2);
+    free(bchrom);free(bchrom2);
     free(ochrom);
     free(scaffold_out);
     free(outfile);
