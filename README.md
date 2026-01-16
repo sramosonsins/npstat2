@@ -10,9 +10,9 @@ In this second version, we have implemented analysis multiscaffold, quasi-single
 
 Remember to filter your mpileup(s) to exclude sites with possible mapping errors or copy-number variants. Mapping quality filtering is not included in the code.
 
-## Code under debugging! 
+## Comparison with other softwares 
 
-This code is still not completely validated. We are validating the software using simulations under different conditions. Fst works acceptably in comparison with other tools. See simulation results included in the repository.
+We are validating the software using simulations under different conditions. Fst works acceptably in comparison with other tools. See simulation results included in the repository.
 
 ## How to compile
 
