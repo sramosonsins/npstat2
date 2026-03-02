@@ -1728,9 +1728,11 @@ double calculate_combfst_cs(unsigned int rd1, unsigned int rd2, int m_bar, int n
 }
 
 void usage(void) {
-    fprintf(stderr,"Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -scaffolds: name of file containing scaffold names\n     -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m (default 2)\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
+    fprintf(stderr,"Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n     -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m (default 2)\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
+    //    -scaffolds: name of file containing scaffold names\n
     
-    //printf("Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -scaffolds: name of file containing scaffold names\n    -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m (default 2)\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
+    //printf("Command:\n   npstat2 [options] file.pileup.gz\n  Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m (default 2)\n    -outgroup file.fa : outgroup file in FASTA\n    -annot file.gff3 : annotation file in GFF3\n    -snpfile file.snp : consider SNPs only if present in file.snp\n    -outfile : name output file (default ends with extension '.stats.txt')\n    -fstpop2 file2.pileup : computes Fst with a second population contained in file2.pileup.gz\n    -n2 : sample size of the second population\n    -h : show command and flags\n");
+    //    -scaffolds: name of file containing scaffold names\n
     return;
 }
 /*--------------------------------------------------------------*/
@@ -1751,7 +1753,7 @@ int main(int argc, char *argv[])
     BGZF/*FILE*/ *bam_file1=0;
     BGZF/*FILE*/ *bam_file2=0;
     FILE *fasta_out=0;
-    FILE *scaffold_file=0;
+//    FILE *scaffold_file=0;
     FILE *bed_file=0;
     //char outgroup_available;
     char ct1;
@@ -1915,8 +1917,8 @@ int main(int argc, char *argv[])
     if_bed=0;
     
     /* BEG <----ADDED 29112022*/
-    char *scaffold_filename;
-    scaffold_filename=(char *) calloc(1000,sizeof(char));
+//    char *scaffold_filename;
+//    scaffold_filename=(char *) calloc(1000,sizeof(char));
     char *bed_filename;
     bed_filename=(char *) calloc(1000,sizeof(char));
     char *outfile;
@@ -1956,7 +1958,7 @@ int main(int argc, char *argv[])
         else if (strcmp(argv[arg_i], "-annot") == 0) {if_gff=1; arg_i++; gff_file_name=argv[arg_i];}
         //ADDED
         else if (strcmp(argv[arg_i], "-outfile") == 0) {arg_i++; sscanf(argv[arg_i], "%s",outfile); }
-        else if (strcmp(argv[arg_i], "-scaffolds") == 0) {arg_i++; sscanf(argv[arg_i], "%s",scaffold_filename); }
+//        else if (strcmp(argv[arg_i], "-scaffolds") == 0) {arg_i++; sscanf(argv[arg_i], "%s",scaffold_filename); }
         else if (strcmp(argv[arg_i], "-simplefst") == 0) {fst_path=0; arg_i++; sscanf(argv[arg_i], "%d", &fst_path);}
         /*     else if (strcmp(argv[arg_i], "-snpcolumns") == 0)
          {
@@ -2117,12 +2119,12 @@ int main(int argc, char *argv[])
             return(-1);
         };
     }
-    scaffold_file=fopen(scaffold_filename,"r");
-    if (scaffold_file == NULL){
-        fprintf(stderr,"Error: the scaffold file cannot be opened!\n");
-        usage();
-        return(-1);
-    };
+//    scaffold_file=fopen(scaffold_filename,"r");
+//    if (scaffold_file == NULL){
+//        fprintf(stderr,"Error: the scaffold file cannot be opened!\n");
+//        usage();
+//        return(-1);
+//    };
     
     //open bedfile and include variables (scaffold_bed, window_bed_init, window_bed_end)
     char *line_bed;
@@ -2532,8 +2534,8 @@ int main(int argc, char *argv[])
     size_t n_line_sc=32;
     line_sc=(char *)malloc(n_line_sc*sizeof(char));
     
-    getline(&line_sc,&n_line_sc,scaffold_file); //first scaffold
-    sscanf(line_sc,"%s",scaffold);
+//    getline(&line_sc,&n_line_sc,scaffold_file); //first scaffold
+//    sscanf(line_sc,"%s",scaffold);
     
     /* Run across all bases */
     BGZFReader reader1 = {bam_file1, 0, 0};
@@ -2542,7 +2544,10 @@ int main(int argc, char *argv[])
     bgzf_reader_ungetc(&reader1,ct1);
     if(ct1!=EOF) {
         bgzf_getdeline(&reader1,&cline,&nline,9);
-        sscanf(cline,"%s\t",cchrom_next);
+        //define scaffold
+        sscanf(cline,"%s",scaffold);
+        sscanf(cline,"%s",line_sc);
+
         strcpy(cchrom,  scaffold); //define first scaffold
         strcpy(schrom,  scaffold); //snps
         strcpy(schrom2, scaffold); //snps 2nd pop
@@ -2550,6 +2555,8 @@ int main(int argc, char *argv[])
         strcpy(gchrom2, scaffold);
         strcpy(bchrom,  scaffold); //bed
         strcpy(bchrom2, scaffold);
+        
+        sscanf(cline,"%s\t",cchrom_next);
 
         c2chrom_next[0]=EOF;
         if(compute_fst) {
@@ -2577,13 +2584,22 @@ int main(int argc, char *argv[])
         
         /* update cchrom if scaffold is different than current pos in both pileupa*/
         while(strcmp(cchrom,cchrom_next) && strcmp(cchrom,c2chrom_next)) {
-            getline(&line_sc,&n_line_sc,scaffold_file);
-            sscanf(line_sc,"%s",scaffold);
+//            getline(&line_sc,&n_line_sc,scaffold_file);
+            //sscanf(line_sc,"%s",scaffold);
+            if(strcmp(c2chrom_next,cchrom_next)==0) {
+                sscanf(cchrom_next,"%s",scaffold);
+                sscanf(cchrom_next,"%s",line_sc);//unnecessary
+            }
+            else {
+                printf("Error: Next pop1 scaffold (%s) and pop2 scaffold (%s) differ\n", cchrom_next, c2chrom_next);
+                *line_sc=0;
+                break;
+            }
             if(*line_sc==0) {
                 cchrom[0]=0;
                 break;
             }
-            else strcpy(cchrom,scaffold); //next scaffold
+            else strcpy(cchrom,cchrom_next); //next scaffold
             if(strcmp(cchrom,cchrom_next)==0)  pos_base1=0;
             if(strcmp(cchrom,c2chrom_next)==0) pos_base2=0;
             posw = 1;
@@ -2648,15 +2664,22 @@ int main(int argc, char *argv[])
         /*DEFINE OUTGROUP IF AVAILABLE*/
         if(outgroup_available==1) {/*define scaffold*/
             /*READ MULTISCAFFOLD FASTA OUTGROUP*/
-            while (strcmp(ochrom,cchrom) && nscaf<nscafc) { /*assign a new chromosome in cchrom*/
+            if(strcmp(ochrom,cchrom) && nscaf<nscafc) { /*assign a new chromosome in cchrom*/
                 fseek(fasta_out,scaffold_out[nscaf],SEEK_SET);//file pointer located at the next '>' character
                 getline(&oline,&noline,fasta_out); //leave file pointer located at the first row of the fasta scaffold
                 sscanf(oline,">%s",ochrom);
                 nscaf++;
                 oldpos=0;
+                if(strcmp(ochrom,cchrom)) {
+                    printf("Error: Next outgroup scaffold (%s) and pop scaffold (%s) differ\n", ochrom, cchrom);
+                    *line_sc = 0;
+               }
             }
         }
-        /*READ MPILEUP FILE(S)*/
+        if(*line_sc==0) {
+            break;
+        }
+       /*READ MPILEUP FILE(S)*/
         r1_ok = 0;
         if (pos_base1<posw && strcmp(cchrom,cchrom_next)==0)
         {
@@ -2895,10 +2918,20 @@ int main(int argc, char *argv[])
                 fprintf(output_stat1, "\tNA\t0\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
             };
             if (test1.l_out>0.) {
-                if(thetaxi1_val!=-1)
-                    fprintf(output_stat1, "\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f", thetaxi1_val,thetaH1_val, thetaE1_val,fo1_val,h1_val,e1_val, h1_val/sqrt(var0_h+var_h), div_val);
-                else
-                    fprintf(output_stat1, "\tNA\t%f\t%f\tNA\t%f\t%f\t%f\t%f",thetaH1_val, thetaE1_val,h1_val,e1_val, h1_val/sqrt(var0_h+var_h), div_val);
+                if(thetaxi1_val!=-1) {
+                    if(div_val != -1) {
+                        fprintf(output_stat1, "\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f", thetaxi1_val,thetaH1_val, thetaE1_val,fo1_val,h1_val,e1_val, h1_val/sqrt(var0_h+var_h), div_val);
+                    }
+                    else {
+                        fprintf(output_stat1, "\t%f\t%f\t%f\t%f\t%f\t%f\t%f\tNA", thetaxi1_val,thetaH1_val, thetaE1_val,fo1_val,h1_val,e1_val, h1_val/sqrt(var0_h+var_h));
+                    }
+                } else
+                    if(div_val != -1) {
+                        fprintf(output_stat1, "\tNA\t%f\t%f\tNA\t%f\t%f\t%f\t%f",thetaH1_val, thetaE1_val,h1_val,e1_val, h1_val/sqrt(var0_h+var_h), div_val);
+                    }
+                    else {
+                        fprintf(output_stat1, "\tNA\t%f\t%f\tNA\t%f\t%f\t%f\tNA",thetaH1_val, thetaE1_val,h1_val,e1_val, h1_val/sqrt(var0_h+var_h));
+                    }
             } else {
                 fprintf(output_stat1, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
             };
@@ -2928,10 +2961,21 @@ int main(int argc, char *argv[])
                     fprintf(output_stat1, "\tNA\tNA\tNA");
                 };
                 if (testn1.l_out>0.) {
-                    if(thetaxi1_val!=-1)
-                        fprintf(output_stat1, "\t%f\t%f\t%f\t%f", thetaxi1_val,thetaH1_val,thetaE1_val, div_val);
-                    else
-                        fprintf(output_stat1, "\tNA\t%f\t%f\t%f",thetaH1_val,thetaE1_val, div_val);
+                    if(thetaxi1_val!=-1) {
+                        if(div_val != -1) {
+                            fprintf(output_stat1, "\t%f\t%f\t%f\t%f", thetaxi1_val,thetaH1_val,thetaE1_val, div_val);
+                        }
+                        else {
+                            fprintf(output_stat1, "\t%f\t%f\t%f\tNA", thetaxi1_val,thetaH1_val,thetaE1_val);
+                        }
+                    } else {
+                        if(div_val != -1) {
+                            fprintf(output_stat1, "\tNA\t%f\t%f\t%f",thetaH1_val,thetaE1_val, div_val);
+                        }
+                        else {
+                            fprintf(output_stat1, "\tNA\t%f\t%f\tNA",thetaH1_val,thetaE1_val);
+                        }
+                    }
                 } else {
                     fprintf(output_stat1, "\tNA\tNA\tNA\tNA");
                 };
@@ -2953,10 +2997,22 @@ int main(int argc, char *argv[])
                     fprintf(output_stat1, "\tNA\tNA\tNA");
                 };
                 if (tests1.l_out>0.) {
-                    if(thetaxi1_val!=-1)
-                        fprintf(output_stat1, "\t%f\t%f\t%f\t%f", thetaxi1_val,thetaH1_val,thetaE1_val, div_val);
-                    else
-                        fprintf(output_stat1, "\tNA\t%f\t%f\t%f",thetaH1_val,thetaE1_val, div_val);
+                    if(thetaxi1_val!=-1) {
+                        if(div_val != -1) {
+                            fprintf(output_stat1, "\t%f\t%f\t%f\t%f", thetaxi1_val,thetaH1_val,thetaE1_val, div_val);
+                        }
+                        else {
+                            fprintf(output_stat1, "\t%f\t%f\t%f\tNA", thetaxi1_val,thetaH1_val,thetaE1_val);
+                        }
+                    }
+                    else {
+                        if(div_val != -1) {
+                            fprintf(output_stat1, "\tNA\t%f\t%f\t%f",thetaH1_val,thetaE1_val,div_val);
+                        }
+                        else {
+                            fprintf(output_stat1, "\tNA\t%f\t%f\tNA",thetaH1_val,thetaE1_val);
+                        }
+                    }
                 } else {
                     fprintf(output_stat1, "\tNA\tNA\tNA\tNA");
                 };
@@ -3047,10 +3103,21 @@ int main(int argc, char *argv[])
                     fprintf(output_stat2, "\tNA\t0\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
                 };
                 if (test1.l_out>0.) {
-                    if(thetaxi2_val!=-1)
-                        fprintf(output_stat2, "\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f", thetaxi2_val,thetaH2_val,thetaE2_val, fo2_val,h2_val, e2_val,h2_val/sqrt(var0_h+var_h), div_val);
-                    else
-                        fprintf(output_stat2, "\tNA\t%f\t%f\tNA\t%f\t%f\t%f\t%f",thetaH2_val,thetaE2_val, h2_val, e2_val,h2_val/sqrt(var0_h+var_h), div_val);
+                    if(thetaxi2_val!=-1) {
+                        if(div_val != -1) {
+                            fprintf(output_stat2, "\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f", thetaxi2_val,thetaH2_val,thetaE2_val, fo2_val,h2_val, e2_val,h2_val/sqrt(var0_h+var_h), div_val);
+                        }
+                        else {
+                            fprintf(output_stat2, "\t%f\t%f\t%f\t%f\t%f\t%f\t%f\tNA", thetaxi2_val,thetaH2_val,thetaE2_val, fo2_val,h2_val, e2_val,h2_val/sqrt(var0_h+var_h));
+                        }
+                    }else {
+                        if(div_val != -1) {
+                            fprintf(output_stat2, "\tNA\t%f\t%f\tNA\t%f\t%f\t%f\t%f",thetaH2_val,thetaE2_val, h2_val, e2_val,h2_val/sqrt(var0_h+var_h), div_val);
+                        }
+                        else {
+                            fprintf(output_stat2, "\tNA\t%f\t%f\tNA\t%f\t%f\t%f\tNA",thetaH2_val,thetaE2_val, h2_val, e2_val,h2_val/sqrt(var0_h+var_h));
+                        }
+                    }
                 } else {
                     fprintf(output_stat2, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
                 };
@@ -3071,10 +3138,22 @@ int main(int argc, char *argv[])
                         fprintf(output_stat2, "\tNA\tNA\tNA");
                     };
                     if (testn2.l_out>0.) {
-                        if(thetaxi2_val!=-1)
-                            fprintf(output_stat2, "\t%f\t%f\t%f\t%f", thetaxi2_val,thetaH2_val, thetaE2_val,div_val);
-                        else
-                            fprintf(output_stat2, "\tNA\t%f\t%f\t%f",thetaH2_val, thetaE2_val,div_val);
+                        if(thetaxi2_val!=-1) {
+                            if(div_val != -1) {
+                                fprintf(output_stat2, "\t%f\t%f\t%f\t%f", thetaxi2_val,thetaH2_val, thetaE2_val,div_val);
+                            }
+                            else {
+                                fprintf(output_stat2, "\t%f\t%f\t%f\tNA", thetaxi2_val,thetaH2_val, thetaE2_val);
+                            }
+                        }
+                        else {
+                            if(div_val != -1) {
+                                fprintf(output_stat2, "\tNA\t%f\t%f\t%f",thetaH2_val, thetaE2_val,div_val);
+                            }
+                            else {
+                                fprintf(output_stat2, "\tNA\t%f\t%f\tNA",thetaH2_val, thetaE2_val);
+                            }
+                        }
                     } else {
                         fprintf(output_stat2, "\tNA\tNA\tNA\tNA");
                     };
@@ -3097,18 +3176,33 @@ int main(int argc, char *argv[])
                         fprintf(output_stat2, "\tNA\tNA\tNA");
                     };
                     if (tests2.l_out>0.) {
-                        if(thetaxi2_val!=-1)
-                            fprintf(output_stat2, "\t%f\t%f\t%f\t%f", thetaxi2_val,thetaH2_val,thetaE2_val, div_val);
-                        else
-                            fprintf(output_stat2, "\tNA\t%f\t%f\t%f",thetaH2_val,thetaE2_val, div_val);
+                        if(thetaxi2_val!=-1) {
+                            if(div_val != -1) {
+                                fprintf(output_stat2, "\t%f\t%f\t%f\t%f", thetaxi2_val,thetaH2_val,thetaE2_val, div_val);
+                            }
+                            else {
+                                fprintf(output_stat2, "\t%f\t%f\t%f\tNA", thetaxi2_val,thetaH2_val,thetaE2_val);
+                            }
+                        }
+                        else {
+                            if(div_val != -1) {
+                                fprintf(output_stat2, "\tNA\t%f\t%f\t%f",thetaH2_val,thetaE2_val, div_val);
+                            }
+                            else {
+                                fprintf(output_stat2, "\tNA\t%f\t%f\tNA",thetaH2_val,thetaE2_val);
+                            }
+                        }
                     } else {
                         fprintf(output_stat2, "\tNA\tNA\tNA\tNA");
                     };
                     thetaw_s=theta2_val;
                     thetat_s=pi2_val;
                     thetah_s=h2_val+pi2_val;
-                    div_s=div_val;
-                    
+                    if(div_val != -1) div_s=div_val;
+                    else div_s=0;
+                    if(dnon2 == -1) dnon2=0;
+                    if(dsyn2 == -1) dsyn2=0;
+
                     if(psyn2*dnon2==0){
                         if(dsyn2*pnon2==0){
                             fprintf(output_stat2, "\tNA\tNA\tNA\tNA");
@@ -3177,7 +3271,7 @@ int main(int argc, char *argv[])
     if(compute_fst) {
         bgzf_close(bam_file2);
     }
-    fclose(scaffold_file);
+//    fclose(scaffold_file);
     if (outgroup_available==1) { fclose(fasta_out); };
     if (ext_snps==1) { fclose(list_snps); };
     if (if_gff==1) { fclose(gff); };
@@ -3198,7 +3292,7 @@ int main(int argc, char *argv[])
     free(scaffold_out);
     free(outfile);
     free(scaffold);
-    free(scaffold_filename);
+//    free(scaffold_filename);
     free(bed_filename);
     free(line_sc);
     free(codon_frame);

@@ -27,7 +27,7 @@ Example:
 	
 ## Input format
 
-The main input of the program is in pileup.gz format. It is also mandatory to include a file with the names of the scaffolds, in the same order than in the pipeline.
+The main input of the program is in pileup.gz format. It is mandatory to include the scaffolds in the same order in all the files. All the scaffolds included will be analyzed.
 
 Other three types of files could be useful:
 
@@ -46,7 +46,6 @@ Command:
 Mandatory flags:
 
     -n : haploid sample size
-    -scaffolds : name of file including scaffolds   
     
     And one of these two options:
     -l : window length
@@ -159,7 +158,7 @@ By default, Fst is calculated from the estimation of Pi_a to later estimate Pi_t
 
 We provide a small example containing some regions from different scaffolds of Drosophila melanogaster and D. yakuba as the outgroup. the two populations used are coming from the same population. Unzip before running.
 
-	../npstat2 -n 16 -l 10000 -nolowfreq 1 -minqual 18 -outgroup Dyakuba-mel_final_cns.fa -annot dmel-all-r6.12_sorted.gtf -scaffolds scaffold_file.txt -fstpop2 Pool_seq2.mel_mpileup.txt.gz -n2 16 -outfile Pool_seq_npstat2_results Pool_seq1.mel_mpileup.txt.gz
+	../npstat2 -n 16 -l 10000 -nolowfreq 1 -minqual 18 -outgroup Dyakuba-mel_final_cns.fa -annot dmel-all-r6.12_sorted.gtf -fstpop2 Pool_seq2.mel_mpileup.txt.gz -n2 16 -outfile Pool_seq_npstat2_results Pool_seq1.mel_mpileup.txt.gz
 	
 A simple R script to plot the results of the output is included. Simply include the name of the npstat output file of interest and the name of the output pdf file as arguments:
 
