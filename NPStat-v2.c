@@ -1943,7 +1943,9 @@ int main(int argc, char *argv[])
         if (strcmp(argv[arg_i], "-n") == 0) {arg_i++; sscanf(argv[arg_i], "%u", &n01); }
         else if (strcmp(argv[arg_i], "-h") == 0) {arg_i++; usage(); exit(0);}
         else if (strcmp(argv[arg_i], "-l") == 0) {arg_i++; sscanf(argv[arg_i], "%lu", &window_size); }
-        else if (strcmp(argv[arg_i], "-bedfile") == 0) {if_bed=1; arg_i++; sscanf(argv[arg_i], "%s",bed_filename); }
+        else if (strcmp(argv[arg_i], "-bedfile") == 0) {
+            if_bed=1; arg_i++; sscanf(argv[arg_i], "%s",bed_filename);
+        }
         else if (strcmp(argv[arg_i], "-cov") == 0) {arg_i++; sscanf(argv[arg_i], "%lf", &input_coverage1); }
         else if (strcmp(argv[arg_i], "-n2") == 0) {arg_i++; sscanf(argv[arg_i], "%u", &n02); }
         else if (strcmp(argv[arg_i], "-mincov") == 0) {arg_i++; sscanf(argv[arg_i], "%lu", &min_cov); }
@@ -1956,7 +1958,9 @@ int main(int argc, char *argv[])
         else if (strcmp(argv[arg_i], "-fstpop2") == 0) {compute_fst=1; arg_i++; pileup2_file_name=argv[arg_i];}
         //else if (strcmp(argv[arg_i], "-pileup") == 0) {}
         else if (strcmp(argv[arg_i], "-snpfile") == 0) {ext_snps=1; arg_i++; snp_file_name=argv[arg_i];}
-        else if (strcmp(argv[arg_i], "-annot") == 0) {if_gff=1; arg_i++; gff_file_name=argv[arg_i];}
+        else if (strcmp(argv[arg_i], "-annot") == 0) {
+            if_gff=1; arg_i++; gff_file_name=argv[arg_i];
+        }
         //ADDED
         else if (strcmp(argv[arg_i], "-outfile") == 0) {arg_i++; sscanf(argv[arg_i], "%s",outfile); }
 //        else if (strcmp(argv[arg_i], "-scaffolds") == 0) {arg_i++; sscanf(argv[arg_i], "%s",scaffold_filename); }
@@ -1995,6 +1999,13 @@ int main(int argc, char *argv[])
             fprintf(stderr,"\nERROR: -l and -bedfile are incompatible flags\n");
             return(-1);
         }
+        if(if_bed==1) {
+            printf("\nWARNING: Bed file MUST BE SORTED and in the same scaffold order than pileup(s).\n\n");
+        }
+        if(if_gff==1){
+            printf("\nWARNING: GTF file MUST BE SORTED and in the same scaffold order than pileup(s). Do not include Alternative Splicing.\n");
+        }
+        printf("\n");
 
     };
     //fprintf(stderr,"Missing values in command line!\n Command:\n    NPStat [options] file.pileup\n or to read from standard input:\n    NPStat [options] -\n Options:\n    -n samplesize : haploid sample size\n    -l windowlength : window length\n    -mapqual : pileup includes mapping quality\n    -mincov minimum_coverage : filter on minimum coverage (default 4)\n    -maxcov maximum_coverage : filter on maximum coverage (default 100)\n    -minqual minimum_base_quality : filter on base quality (default 10)\n    -minmapqual minimum_mapping_quality : filter on mapping quality (default 10)\n    -nolowfreq m : filter on minimum allele count mac>m\n    -outgroup file.fa : outgroup file in FASTA\n    -fstpop2 file2.pileup : computes Fst with a second population \n    contained in file2.pileup\n    -n2 : sample size of the second population\n");
