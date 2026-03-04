@@ -1395,9 +1395,7 @@ void extract_fstT(struct fst_calc * fst, struct combinatorial_fst * combfst, str
         */
     }
     /**/
-};
-
-
+}
 
 //SNPS
 void extract_snps(unsigned long pos, FILE * output_snps, unsigned long * n_alt_1, unsigned long * n_alt_2, int mb)
@@ -1813,7 +1811,10 @@ int main(int argc, char *argv[])
     struct tests tests1, testn1;
     struct tests tests2, testn2;
     struct fst_calc fst;
-    
+    struct fst_calc fst_single_pos;
+    double mpis_val,mpia_val,mpit_val,pm_fst_val,max_fst_val;
+    double mpis_val_,mpia_val_,mpit_val_,pm_fst_val2,max_fst_val2;
+
     FILE * list_snps=0;
     unsigned long pos_snp=0;
     
@@ -2509,7 +2510,7 @@ int main(int argc, char *argv[])
     if(compute_fst) {
         fprintf(output_stat2, "scaffold\twindow\tstart\tend\tlength\tlength_outgroup\tread_depth\tS\ttheta_FL*\tWatterson\tPi\tTajima_D\tunnormFL*test\tvar_S\tvar_Watterson\ttheta_FL\tthetaH\tthetaZE\tunnormFLtest\tunnorm_FayWu_H\tunnormZengEtest\tFayWu_H\tdiv\tnonsyn_S\tsyn_S\tnonsyn_div\tsyn_div\tlen_ns\tlen_out_ns\tthetaFL*_ns\tWatt_ns\tpi_ns\tthetaFL_ns\tthetaH_ns\tthetaZE_ns\tdiv_ns\tlen_syn\tlen_out_syn\tthetaFL*_syn\tWatt_syn\tpi_syn\tthetaFL_syn\tthetaH_syn\tthetaZE_syn\tdiv_syn\talpha\talpha_watt\talpha_pi\talpha_H\n");
 
-        fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_a\tPi_t\tFstT\tFstA\n");
+        fprintf(output_fst, "scaffold\twindow\tstart\tend\tlength\tnVariants\tpw_diff_12\tPi_1\tPi_2\tPi_a\tPi_t\tmaxFstT\tFstT\tFstA\n");
     }
     printf("Computing statistics for the window...\n");
     
@@ -2528,7 +2529,9 @@ int main(int argc, char *argv[])
     b_start=0;
     if(if_bed==0) b_end=9e9;
     else b_end=0;
-    
+    max_fst_val=-10000;
+    max_fst_val2 =-10000;
+
     /*Read name of scaffolds*/
     char *line_sc;
     size_t n_line_sc=32;
@@ -2636,6 +2639,8 @@ int main(int argc, char *argv[])
                        max_cov, compute_fst);
             start = posw;
             snp_pos = 0;
+            max_fst_val = -10000;
+            max_fst_val2 = -10000;
         };
         /*IDENTIFY SELECTED SNPS IF AVAILABLE*/
         if(ext_snps==1){/*SCAFFOLDS MUST BE IN THE SAME ORDER THAN PILEUP!*/
@@ -2870,6 +2875,60 @@ int main(int argc, char *argv[])
             if (((pos_base1==posw)&&(rd1<=max_cov)&&!strcmp(cchrom, cchrom2)/*&&(rd1>=max(min_cov,m_bar+1))*/) &&  ((pos_base2==posw)&&(rd2<=max_cov)&&!strcmp(cchrom,c2chrom2)/*&&(rd2>=max(min_cov,m_bar+1))*/) && b_start<=posw && b_end>=posw) {
                 extract_fstT(&fst, &combfst, &comb1, &comb2, n01, n_ref1, n_alt_allele1, rd1, n_alt_1, ref_base1, alt_base1, n02, n_ref2, n_alt_allele2, rd2, n_alt_2, ref_base2, alt_base2, out_base, m_bar,m_bar_fst, &variant, fst_path);
                 snp_pos += (unsigned long) variant;
+ 
+                //init fst_single_pos for each position
+                fst_single_pos.la=0;
+                //fst_single_pos.lt=0;
+                fst_single_pos.gen_diff=0;
+                fst_single_pos.var_diffL=0;
+                fst_single_pos.c_s=0;
+                fst_single_pos.Lbias=0;
+                fst_single_pos.num_p1=0;
+                fst_single_pos.num_p1g=0;
+                fst_single_pos.num_p2=0;
+                fst_single_pos.num_p2g=0;
+                //fst_single_pos.num_pt=0;
+                fst_single_pos.den_p1=0;
+                fst_single_pos.den_p2=0;
+                //fst_single_pos.den_pt=0;
+                extract_fstT(&fst_single_pos, &combfst, &comb1, &comb2, n01, n_ref1, n_alt_allele1, rd1, n_alt_1, ref_base1, alt_base1, n02, n_ref2, n_alt_allele2, rd2, n_alt_2, ref_base2, alt_base2, out_base, m_bar,m_bar_fst, &variant, fst_path);
+                //Calculate Fst:
+                if(fst_single_pos.den_p1>0 && fst_single_pos.den_p2>0) {
+                    mpis_val_ = (fst_single_pos.num_p1/fst_single_pos.den_p1 + fst_single_pos.num_p2/fst_single_pos.den_p2)/2.0; //12
+                } else {mpis_val_=-1;}
+                if(fst.gen_diff>=0) {
+                    mpia_val_ = fst_single_pos.gen_diff/(fst_single_pos.la -  fst_single_pos.c_s); //SI-27
+                } else {mpia_val_=-1;}
+                if(mpis_val_>=0 && mpia_val_>=0) {
+                    mpit_val_ = 1.0/2.0 * (mpis_val_ + mpia_val_); //13
+                } else {mpit_val_=-1;}
+                if(mpit_val_>0) {
+                     pm_fst_val2 = 1.0 - mpis_val_ / mpit_val_; //11
+                } else {
+                    pm_fst_val2 = -10000;
+                }
+                if(pm_fst_val2 > max_fst_val2) {
+                    max_fst_val2 = pm_fst_val2;
+                }
+                //Calculate max_Fst (single pos): Using new Luca approach
+                if(fst_single_pos.num_p1g>=0 && fst_single_pos.num_p2g>=0) {
+                    mpis_val = (fst.num_p1g + fst.num_p2g)/2.0;
+                } else {mpis_val=-1;}
+                if(fst_single_pos.gen_diff>=0) {
+                    mpia_val = fst_single_pos.gen_diff;
+                } else {mpia_val=-1;}
+                if(mpis_val>=0 && mpia_val>=0) {
+                    mpit_val = 1.0/2.0 * (mpis_val + mpia_val);
+                } else {mpit_val=-1;}
+                if(mpit_val>0) {
+                    //fst_val = 1 - pis_val / pit_val; //Grenedalf ?
+                    pm_fst_val = fst_single_pos.var_diffL / mpit_val;
+                } else {
+                    pm_fst_val = -10000;
+                }
+                if(pm_fst_val > max_fst_val) {
+                    max_fst_val = pm_fst_val;
+                }
             }
         }
         /* PRINT OUTPUT(S) */
@@ -3064,7 +3123,7 @@ int main(int argc, char *argv[])
                     fst_val2 = -10000;
                 }
 
-                //Calculate Fst: Using new Luca approach?
+                //Calculate Fst: Using new Luca approach
                 if(fst.num_p1g>=0 && fst.num_p2g>=0) {
                     pis_val = (fst.num_p1g + fst.num_p2g)/2.0;
                 } else {pis_val=-1;}
@@ -3235,11 +3294,12 @@ int main(int argc, char *argv[])
                         if(fst.num_p2g>=0.) fprintf(output_fst,"\t%f",fst.num_p2g); else fprintf(output_fst,"\tNA");
                         if(pia_val>=0.)  fprintf(output_fst,"\t%f",pia_val);  else fprintf(output_fst,"\tNA");
                         if(pit_val>=0.)  fprintf(output_fst,"\t%f",pit_val);  else fprintf(output_fst,"\tNA");
+                        if(max_fst_val !=-10000) fprintf(output_fst, "\t%f",max_fst_val); else fprintf(output_fst,"\tNA");
                         if(fst_val !=-10000) fprintf(output_fst, "\t%f",fst_val); else fprintf(output_fst,"\tNA");
                         if(pia_val >0.) fprintf(output_fst, "\t%f",1.- pis_val/pia_val); else fprintf(output_fst,"\tNA");
                     }
                     else {
-                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
+                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
                     }
                 }
                 else {
@@ -3250,11 +3310,12 @@ int main(int argc, char *argv[])
                         if(fst.den_p2>0.) fprintf(output_fst,"\t%f",fst.num_p2/fst.den_p2); else fprintf(output_fst,"\tNA");
                         if(pia_val_>=0.)  fprintf(output_fst,"\t%f",pia_val_);  else fprintf(output_fst,"\tNA");
                         if(pit_val_>=0.)  fprintf(output_fst,"\t%f",pit_val_);  else fprintf(output_fst,"\tNA");
+                        if(max_fst_val2 !=-10000) fprintf(output_fst, "\t%f",max_fst_val2); else fprintf(output_fst,"\tNA");
                         if(fst_val2 !=-10000) fprintf(output_fst, "\t%f",fst_val2); else fprintf(output_fst,"\tNA");
                         if(pia_val_>0.) fprintf(output_fst, "\t%f",1.- pis_val_/pia_val_); else fprintf(output_fst,"\tNA");
                     }
                     else {
-                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
+                        fprintf(output_fst, "\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA");
                     }
                 }
                 fprintf(output_fst,"\n");

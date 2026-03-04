@@ -45,9 +45,8 @@ Command:
 		    
 Mandatory flags:
 
-    -n : haploid sample size
-    
-    And one of these two options:
+    -n : haploid sample size    
+    and one of these two options:
     -l : window length
     -bedfile: filename of the bedfile (rows should contain scaffold start end)
  
@@ -149,8 +148,9 @@ The file containing the differentiation output includes the next statistics:
 	9.Pi_2: Tajima’s Pi estimator of heterozygosity/nt in population 2 for common positions with pop 1.
 	10.Pi_a: pairwise differences between population 1 and 2 divided by the total effective positions.
 	11.Pi_t: Tajima’s Pi estimator of heterozygosity/nt considering together pop 1 and 2.
-	12.FstT: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_t)
-	13.FstA: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_a)
+	12.maxFstT: maximum differentiation (for single variant) within window (Fst=1-(mean(Pi_1+Pi_2))/Pi_t)
+	13.FstT: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_t)
+	14.FstA: Differentiation statistic (Fst=1-(mean(Pi_1+Pi_2))/Pi_a)
 
 By default, Fst is calculated from the estimation of Pi_a to later estimate Pi_total, using the equations developed in Ferretti et al (2013).
 	
