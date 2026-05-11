@@ -46,11 +46,11 @@ Command:
 Mandatory flags:
 
     -n : haploid sample size    
-    
     and one of these two options:
-    
     -l : window length
     -bedfile: filename of the bedfile (rows should contain scaffold start end)
+ 
+The option "-l" define the window size for each analysis. In case you want to analyze data using the entire scaffold (for example for experiments having thousands of short scaffolds), then use the option "-bedfile".
  
  Additional Optional flags:
    
