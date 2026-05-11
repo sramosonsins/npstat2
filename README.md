@@ -48,6 +48,7 @@ Mandatory flags:
     -n : haploid sample size    
     and one of these two options:
     -l : window length
+    -bedfile: filename of the bedfile (rows should contain scaffold start end)
  
  Additional Optional flags:
    
